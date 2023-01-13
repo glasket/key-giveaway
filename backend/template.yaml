@@ -1,0 +1,291 @@
+﻿AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Backend API for game key giveaway site
+
+Globals:
+  Function:
+    Runtime: go1.x
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref KeyGiveawayTable
+
+Resources:
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+
+  FrontendDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - Id: FrontendBucket
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront.${CloudFrontOriginAccessIdentity}'
+          - Id: Backend
+            DomainName: !Sub '${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com'
+            OriginPath: '/Prod'
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+        DefaultCacheBehavior:
+          TargetOriginId: FrontendBucket
+          ViewerProtocolPolicy: redirect-to-https
+          ForwardedValues:
+            QueryString: true
+        CacheBehaviors:
+          - TargetOriginId: Backend
+            PathPattern: 'api/*'
+            DefaultTTL: 0
+            MinTTL: 0
+            MaxTTL: 0
+            ViewerProtocolPolicy: https-only
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, PATCH, POST, DELETE]
+            ForwardedValues:
+              QueryString: true
+        Enabled: true
+        DefaultRootObject: index.html
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      PolicyDocument:
+        Id: KeyGiveawayFrontendPolicy
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              CanonicalUser: !GetAtt CloudFrontOriginAccessIdentity.S3CanonicalUserId
+            Action: 's3:GetObject'
+            Resource: !Sub
+              - 'arn:aws:s3:::${Bucket}/*'
+              - Bucket: !Ref FrontendBucket
+      Bucket: !Ref FrontendBucket
+
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: CloudFront Access Identity
+
+  KeyGiveawayTable:
+    Type: AWS::Serverless::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: PK
+          AttributeType: S
+        - AttributeName: SK
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PK
+          KeyType: HASH
+        - AttributeName: SK
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      GlobalSecondaryIndexes:
+        - IndexName: TokenSI
+          KeySchema:
+            - AttributeName: SK
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - Expiry
+            ProjectionType: INCLUDE
+      TableName: KeyGiveaway
+
+  BackendApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        DefaultAuthorizer: NONE
+
+  AddDropItemFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: AddDropItem
+      CodeUri: ./deploy/AddDropItem.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/drop-item
+            Method: POST
+
+  AddDropItemConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: AddDropItemFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Write
+
+  AddRaffleEntryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: AddRaffleEntry
+      CodeUri: ./deploy/AddRaffleEntry.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/entry
+            Method: POST
+
+  AddRaffleEntryConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: AddRaffleEntryFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Write
+
+  CreateDropFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: CreateDrop
+      CodeUri: ./deploy/CreateDrop.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/drop
+            Method: POST
+
+  CreateDropConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: CreateDropFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Write
+
+  GetDropItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: GetDropItem
+      CodeUri: ./deploy/GetDropItems.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/drop
+            Method: GET
+
+  GetDropItemsConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: GetDropItemsFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Read
+
+  GetDropsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: GetDrops
+      CodeUri: ./deploy/GetDrops.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/drops
+            Method: GET
+
+  GetDropsConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: GetDropsFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Read
+
+  GetWonItemsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: GetWonItems
+      CodeUri: ./deploy/GetWonItems.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/won-items
+            Method: GET
+
+  GetWonItemsConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: GetWonItemsFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Read
+
+  HandleRaffleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: HandleRaffle
+      CodeUri: ./deploy/HandleRaffle.zip
+
+  HandleRaffleConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: HandleRaffleFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Read
+        - Write
+
+  PingFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Ping
+      CodeUri: ./deploy/Ping.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/ping
+            Method: GET
+
+  LoginFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Login
+      Timeout: 10
+      CodeUri: ./deploy/Login.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/login
+            Method: POST
+      Policies:
+        - AWSSecretsManagerGetSecretValuePolicy:
+            SecretArn: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:prod/keygiveaway/facebook-sDFwKY'
+
+Outputs:
+  Website:
+    Value: !GetAtt FrontendDistribution.DomainName

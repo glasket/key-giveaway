@@ -1,0 +1,27 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    "editor.tabSize": 4,
+    "[go]": {
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": true
+      },
+      "editor.suggest.snippetsPreventQuickSuggestions": false
+    },
+    "[javascript][typescript][javascriptreact][typescriptreact][html][json]": {
+      "editor.maxTokenizationLineLength": 20000, // Restores the default setting
+      "editor.tabSize": 2
+    },
+    "[html]": {
+      "editor.suggest.insertMode": "insert",
+      "gitlens.codeLens.scopes": ["document"]
+    }
+  }
+}
