@@ -101,29 +101,6 @@ Resources:
       Auth:
         DefaultAuthorizer: NONE
 
-  AddDropItemFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: AddDropItem
-      CodeUri: ./deploy/AddDropItem.zip
-      Events:
-        CatchAll:
-          Type: Api
-          Properties:
-            RestApiId: !Ref BackendApi
-            Path: /api/drop-item
-            Method: POST
-
-  AddDropItemConnector:
-    Type: AWS::Serverless::Connector
-    Properties:
-      Source:
-        Id: AddDropItemFunction
-      Destination:
-        Id: KeyGiveawayTable
-      Permissions:
-        - Write
-
   AddRaffleEntryFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -142,29 +119,6 @@ Resources:
     Properties:
       Source:
         Id: AddRaffleEntryFunction
-      Destination:
-        Id: KeyGiveawayTable
-      Permissions:
-        - Write
-
-  CreateDropFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: CreateDrop
-      CodeUri: ./deploy/CreateDrop.zip
-      Events:
-        CatchAll:
-          Type: Api
-          Properties:
-            RestApiId: !Ref BackendApi
-            Path: /api/drop
-            Method: POST
-
-  CreateDropConnector:
-    Type: AWS::Serverless::Connector
-    Properties:
-      Source:
-        Id: CreateDropFunction
       Destination:
         Id: KeyGiveawayTable
       Permissions:
@@ -239,24 +193,7 @@ Resources:
       Permissions:
         - Read
 
-  HandleRaffleFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: HandleRaffle
-      CodeUri: ./deploy/HandleRaffle.zip
-
-  HandleRaffleConnector:
-    Type: AWS::Serverless::Connector
-    Properties:
-      Source:
-        Id: HandleRaffleFunction
-      Destination:
-        Id: KeyGiveawayTable
-      Permissions:
-        - Read
-        - Write
-
-  PingFunction:
+PingFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: Ping
@@ -285,6 +222,26 @@ Resources:
       Policies:
         - AWSSecretsManagerGetSecretValuePolicy:
             SecretArn: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:prod/keygiveaway/facebook-sDFwKY'
+
+  # Automated Call
+  HandleRaffleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: HandleRaffle
+      CodeUri: ./deploy/HandleRaffle.zip
+
+  HandleRaffleConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: HandleRaffleFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Read
+        - Write
+
+  
 
 Outputs:
   Website:

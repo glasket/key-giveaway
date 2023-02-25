@@ -1,0 +1,15 @@
+Actions:
+    CreateDrop
+        Takes a Drop and posts it and its items to dynamo
+            - Needs to prevent creating drops that are already expired
+    AddDropItem
+        Takes an item that defines a DropItem with DropId specified
+            - Needs to make sure the DropId belongs to an active drop
+    RemoveDrop
+        Takes a drop id and deletes it from dynamo, along with all items
+            - Maybe don't allow on expired drops?
+    RemoveDropItem
+        Removes the item with a given ID, only works if the parent drop is active
+    
+
+Maybe consider an "Undo" for raffles in case of errors?

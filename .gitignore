@@ -1,6 +1,7 @@
 **/deploy/
 **/bin/
-**/spike.*
+**/spike**
+**/_spike**
 **/.aws-sam/
 
 # https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore

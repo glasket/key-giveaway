@@ -1,0 +1,41 @@
+[
+  {
+    "action": "CreateDrop",
+    "item": {
+      "name": "Fake Drop",
+      "ends_at": "2023-04-01T12:00:00.00Z",
+      "items": [
+        {
+          "name": "Fake and Games",
+          "items": [
+            {
+              "name": "Hogwart's Legacy",
+              "appId": "990080",
+              "key": "THIS-IS-ANOTHER-FAKE"
+            }
+          ]
+        },
+        {
+          "name": "PDX Bundle",
+          "items": [
+            {
+              "name": "Hearts of Iron 4",
+              "appId": "394360",
+              "key": "AINT-REAL"
+            },
+            {
+              "name": "Crusader Kings 3",
+              "appId": "1158310",
+              "key": "FABRICATED-KEY"
+            },
+            {
+              "name": "Victoria 3",
+              "appId": "529340",
+              "key": "VIC-FAKE"
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

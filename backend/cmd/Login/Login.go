@@ -3,160 +3,130 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	c "key-giveaway/pkg/constants"
-	"key-giveaway/pkg/models"
+	"key-giveaway/pkg/database"
+	"key-giveaway/pkg/facebook"
+	"key-giveaway/pkg/fw"
 	"log"
 	"net/http"
-	"strings"
-	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
 )
 
-const facebook_url string = "https://graph.facebook.com/v15.0/"
-const facebook_me string = "me?fields=id&access_token="
-const facebook_long_token string = "oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s"
-const facebook_secret_name string = "prod/keygiveaway/facebook"
+const (
+	fb_secret string = "prod/keygiveaway/facebook"
+)
 
-var db dynamodb.Client
-var sec secretsmanager.Client
+var (
+	sec secretsmanager.Client
+)
 
 func init() {
 	cfg, err := config.LoadDefaultConfig(context.TODO())
 	if err != nil {
 		panic(err)
 	}
-	db = *dynamodb.NewFromConfig(cfg)
+	database.Init(cfg)
 	sec = *secretsmanager.NewFromConfig(cfg)
 }
 
 func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	// Get ID for the token
+	request, writer, session, err := fw.Start(ctx, req)
+	if err != nil {
+		return fw.Error(err)
+	}
+	if request == nil {
+		return fw.InvalidCookie(writer)
+	}
+
 	var token string
 	json.Unmarshal([]byte(req.Body), &token)
-	userId, err := getTokenId(token)
-	if err != nil {
-		log.Fatal(err.Error())
+	fb := facebook.Client{
+		AccessToken: token,
 	}
 
-	// Exchange token
+	userId, err := fb.GetUserId()
+	if err != nil {
+		fw.Error(err)
+	}
+
+	exists, err := checkIfUserExists(ctx, userId)
+	if err != nil {
+		fw.Error(err)
+	}
+
 	var fbSecret facebookSecret
 	res, err := sec.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(facebook_secret_name),
+		SecretId: aws.String(fb_secret),
 	})
 	if err != nil {
-		log.Fatal(err.Error())
+		fw.Error(err)
 	}
 	if err = json.Unmarshal([]byte(*res.SecretString), &fbSecret); err != nil {
-		log.Fatal(err.Error())
+		fw.Error(err)
 	}
-	longToken, err := exchangeToken(token, fbSecret)
+	fb.Id = fbSecret.Id
+	fb.Secret = fbSecret.Secret
+
+	friends, err := fb.Friends(userId, fbSecret.OwnerId)
+	if err != nil {
+		fw.Error(err)
+	}
+
+	if !exists && !friends {
+		// Unauthorized
+		return fw.NotFriends(writer)
+	}
+
+	u := database.User{ID: userId, Friends: friends}
+	ue := database.BuildUserEntity(u)
+	// Update/Create the user
+	ue.Save()
+
+	// Exchange token
+	longToken, err := fb.ExchangeToken()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	// Create primary key
-	u := models.User{Id: userId}
-	t := models.Token{Token: longToken.Token, Expiry: longToken.Expiry}
-	item, err := attributevalue.MarshalMap(models.BuildUserTokenEntity(u, t))
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	// Invalidate session before Facebook token
+	// Simplifies session management somewhat
+	session.Options.MaxAge = *longToken.ExpiresIn - 300
+	session.Values["id"] = u.Id
 
-	// Save
-	_, err = db.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String(c.TableName),
-		Item:      item,
-	})
-	if err != nil {
-		log.Fatal(err.Error())
-	}
+	session.Save(request, writer)
 
-	resp, err := json.Marshal(t)
+	writer.WriteHeader(http.StatusOK)
+	tokenJson, err := json.Marshal(longToken)
 	if err != nil {
-		log.Fatal(err.Error())
+		return fw.Error(err)
 	}
-
-	return events.APIGatewayProxyResponse{
-		StatusCode: 200,
-		Body:       string(resp),
-	}, nil
+	writer.Write(tokenJson)
+	return writer.GetProxyResponse()
 }
 
 func main() {
 	lambda.Start(login)
 }
 
-func getTokenId(token string) (string, error) {
-	var userInfo struct {
-		Id  *string                `json:"id"`
-		Err *models.FBErrorMessage `json:"error"`
-	}
-	resp, err := http.Get(createMeUrl(token))
+func checkIfUserExists(ctx context.Context, id string) (bool, error) {
+	ue := database.BuildUserEntity(database.User{ID: id})
+	err := ue.Get()
 	if err != nil {
-		return "", err
+		_, ok := err.(*database.NotExists)
+		if ok {
+			return false, nil
+		}
+		return false, err
 	}
-	defer resp.Body.Close()
-	d := json.NewDecoder(resp.Body)
-	if err := d.Decode(&userInfo); err != nil {
-		return "", err
-	}
-
-	// Check to see if Err
-	if userInfo.Err != nil {
-		return "", fmt.Errorf("FBError: %v", userInfo.Err.Message)
-	}
-	return *userInfo.Id, nil
-}
-
-func createMeUrl(token string) string {
-	var sb strings.Builder
-	sb.WriteString(facebook_url)
-	sb.WriteString(facebook_me)
-	sb.WriteString(token)
-	return sb.String()
-}
-
-func exchangeToken(token string, secret facebookSecret) (longToken bearerToken, err error) {
-	var sb strings.Builder
-	sb.WriteString(facebook_url)
-	sb.WriteString(fmt.Sprintf(facebook_long_token, secret.Id, secret.Secret, token))
-	resp, err := http.Get(sb.String())
-	if err != nil {
-		return longToken, err
-	}
-	defer resp.Body.Close()
-	d := json.NewDecoder(resp.Body)
-	d.DisallowUnknownFields()
-	var respBody tokenResponse
-	err = d.Decode(&respBody)
-	if err != nil {
-		return longToken, err
-	}
-	longToken.Expiry = time.Now().Add(time.Second * time.Duration(respBody.TTL))
-	longToken.Token = respBody.Token
-	return longToken, nil
-}
-
-type tokenResponse struct {
-	Token string `json:"access_token"`
-	Type  string `json:"token_type"`
-	TTL   int    `json:"expires_in"`
-}
-
-type bearerToken struct {
-	Token  string    `json:"token"`
-	Expiry time.Time `json:"expiry"`
+	return true, nil
 }
 
 type facebookSecret struct {
-	Id     string `json:"app_id"`
-	Secret string `json:"app_secret"`
+	Id      string `json:"app_id"`
+	Secret  string `json:"app_secret"`
+	OwnerId string `json:"owner_id"`
 }
