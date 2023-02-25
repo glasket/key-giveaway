@@ -65,12 +65,21 @@ type Item struct {
 	Entries set.Set[string] `json:"entries"`
 }
 
-func (d Item) Id() string {
-	return d.ID
+func (i Item) Id() string {
+	return i.ID
 }
 
-func (d Item) Tag() rune {
+func (i Item) Tag() rune {
 	return itemEntityTag
+}
+
+func (i Item) AddRaffleEntry(userId string) (Item, error) {
+	entity := BuildDropItemEntity(Drop{ID: i.DropId}, i)
+	entity, err := entity.AddRaffleEntry(userId)
+	if err != nil {
+		return Item{}, err
+	}
+	return entity.ToItem(), nil
 }
 
 type GameItem struct {

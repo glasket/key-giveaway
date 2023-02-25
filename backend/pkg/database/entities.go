@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/rs/zerolog/log"
@@ -118,7 +119,7 @@ type DropItemEntity struct {
 	Key
 	Name    string
 	Items   []GameItem
-	Entries []string
+	Entries []string `dynamodbav:",stringset"`
 }
 
 func BuildDropItemEntity(d Drop, i Item) DropItemEntity {
@@ -130,6 +131,42 @@ func BuildDropItemEntity(d Drop, i Item) DropItemEntity {
 		Entries: i.Entries.Values(),
 	}
 }
+
+func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity, err error) {
+	addSet := types.AttributeValueMemberSS{Value: []string{userId}}
+	update := expression.Add(expression.Name("entries"), expression.Value(addSet))
+	exp, err := expression.NewBuilder().WithUpdate(update).Build()
+	if err != nil {
+		return newEntity, err
+	}
+	resp, err := db.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		Key:                       getEntityKey(d),
+		TableName:                 TableName,
+		ExpressionAttributeNames:  exp.Names(),
+		ExpressionAttributeValues: exp.Values(),
+		UpdateExpression:          exp.Update(),
+		ReturnValues:              types.ReturnValueAllNew,
+	})
+	if err != nil {
+		return newEntity, err
+	}
+	err = attributevalue.UnmarshalMap(resp.Attributes, &newEntity)
+	if err != nil {
+		return newEntity, err
+	}
+	return newEntity, err
+}
+
+func (d DropItemEntity) ToItem() Item {
+	return Item{
+		ID:     strings.Split(d.SK, "#")[1],
+		DropId: strings.Split(d.PK, "#")[1],
+		Name:   d.Name,
+		Items:  d.Items,
+	}
+}
+
+func (d DropItemEntity) getKey() Key { return d.Key }
 
 func BatchWrite(items []interface{}) error {
 	start := 0
