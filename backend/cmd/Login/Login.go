@@ -33,6 +33,10 @@ func init() {
 	sec = *secretsmanager.NewFromConfig(cfg)
 }
 
+type requestJson struct {
+	Token string `json:"token"`
+}
+
 func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request, writer, session, err := fw.Start(ctx, req)
 	if err != nil {
@@ -42,8 +46,12 @@ func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGa
 		return fw.InvalidCookie(writer)
 	}
 
-	var token string
-	json.Unmarshal([]byte(req.Body), &token)
+	var reqJson requestJson
+	err = json.Unmarshal([]byte(req.Body), &reqJson)
+	if err != nil {
+		return fw.Error(err)
+	}
+	token := reqJson.Token
 	fb := facebook.Client{
 		AccessToken: token,
 	}
