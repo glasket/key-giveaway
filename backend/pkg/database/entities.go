@@ -184,7 +184,6 @@ func BatchWrite(items []interface{}) error {
 			RequestItems: map[string][]types.WriteRequest{*TableName: reqs},
 		})
 		if err != nil {
-			log.Error().Err(err).Msg("")
 			return err
 		}
 		start = end
