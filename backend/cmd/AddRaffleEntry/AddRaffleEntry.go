@@ -10,7 +10,16 @@ import (
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/aws/aws-sdk-go-v2/config"
 )
+
+func init() {
+	cfg, err := config.LoadDefaultConfig(context.TODO())
+	if err != nil {
+		panic(err)
+	}
+	database.Init(cfg)
+}
 
 type requestJson struct {
 	DropID string `json:"drop_id"`
