@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"key-giveaway/pkg/database"
+	"key-giveaway/pkg/fw"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -29,12 +30,13 @@ const (
 func main() {
 	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 
-	var awsProfile, infile, raffleArn string
+	var awsProfile, infile, raffleArn, raffleRoleArn string
 	var verbose int
 	flag.StringVar(&awsProfile, "profile", "", "AWS Profile to be used")
 	flag.StringVar(&infile, "file", "", "The path to the input file")
 	flag.IntVar(&verbose, "v", 0, "Verbosity, 0=Warn (Default), 1=Info, 2=Debug")
 	flag.StringVar(&raffleArn, "arn", "", "The ARN for the HandleRaffle lambda")
+	flag.StringVar(&raffleRoleArn, "role", "", "The Role ARN for the HandleRaffle lambda")
 	flag.Parse()
 
 	switch verbose {
@@ -108,23 +110,40 @@ func main() {
 			log.Debug().Any("drop", drop).Msg("")
 			// Generate random ID
 			drop.ID = uuid.New().String()
-			for _, item := range drop.Items {
-				item.DropId = drop.ID
+			log.Debug().Str("drop_id", drop.ID).Msg("")
+			for idx := range drop.Items {
+				drop.Items[idx].ID = uuid.New().String()
+				drop.Items[idx].DropId = drop.ID
 			}
 			if err := drop.Save(); err != nil {
 				log.Error().Err(err).Msg("")
 				break
 			}
 			// Event Bridge
+			input, err := json.Marshal(fw.HandleRaffleRequest{DropID: drop.ID})
+			if err != nil {
+				log.Error().Err(err).Msg("")
+				break
+			}
 			sched := scheduler.NewFromConfig(cfg)
-			sched.CreateSchedule(ctx, &scheduler.CreateScheduleInput{
+			schedOut, err := sched.CreateSchedule(ctx, &scheduler.CreateScheduleInput{
 				ScheduleExpression: aws.String(fmt.Sprintf("at(%v)", drop.End.Format("2006-01-02T03:04:05"))),
 				Target: &types.Target{
-					Arn:   &raffleArn,
-					Input: aws.String("{ dropId: \"" + drop.ID + "\" }"),
+					Arn:     &raffleArn,
+					RoleArn: &raffleRoleArn,
+					Input:   aws.String(string(input)),
 				},
-				Name: aws.String(drop.ID + " Raffle"),
+				Name: aws.String(drop.ID + "-Raffle"),
+				FlexibleTimeWindow: &types.FlexibleTimeWindow{
+					Mode: types.FlexibleTimeWindowModeOff,
+				},
 			})
+			if err != nil {
+				log.Error().Err(err).Msg("")
+			}
+			if schedOut != nil {
+				log.Debug().Interface("schedule_output", schedOut).Msg("")
+			}
 		case removeDrop:
 			log.Error().Str("job_action", job.Action).Msg("Not implemented")
 		default:

@@ -50,7 +50,7 @@ func BuildUserEntity(u User) UserEntity {
 	}
 }
 
-func (u *UserEntity) Get() error {
+func (u UserEntity) Get() error {
 	o, err := db.GetItem(ctx, &dynamodb.GetItemInput{
 		Key:       getEntityKey(u),
 		TableName: TableName,
@@ -65,7 +65,7 @@ func (u *UserEntity) Get() error {
 	return err
 }
 
-func (u *UserEntity) Save() error {
+func (u UserEntity) Save() error {
 	_, err := db.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: TableName,
 		Item:      getEntityItem(u),
@@ -105,7 +105,7 @@ func BuildDropEntity(d Drop) DropEntity {
 	}
 }
 
-func (d *DropEntity) Save() error {
+func (d DropEntity) Save() error {
 	_, err := db.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: TableName,
 		Item:      getEntityItem(d),
@@ -168,7 +168,7 @@ func (d DropItemEntity) ToItem() Item {
 
 func (d DropItemEntity) getKey() Key { return d.Key }
 
-func BatchWrite(items []interface{}) error {
+func BatchWrite[T any](items []T) error {
 	start := 0
 	end := start + batchSize
 	for start < len(items) {
@@ -199,6 +199,7 @@ func getEntityKey(e entity) map[string]types.AttributeValue {
 	}
 	return k
 }
+
 func getEntityItem(e interface{}) map[string]types.AttributeValue {
 	i, err := attributevalue.MarshalMap(e)
 	if err != nil {

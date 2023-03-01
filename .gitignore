@@ -3,6 +3,9 @@
 **/spike**
 **/_spike**
 **/.aws-sam/
+**/samconfig.toml
+**/packaged.yaml
+**/*.db
 
 # https://github.com/github/gitignore/blob/main/Global/VisualStudioCode.gitignore
 .vscode/*

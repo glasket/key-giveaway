@@ -7,13 +7,23 @@ Globals:
     Runtime: go1.x
     Architectures:
       - x86_64
-    Environment:
-      Variables:
-        TABLE_NAME: !Ref KeyGiveawayTable
 
 Resources:
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: CloudFront Access Identity
+
   FrontendBucket:
     Type: AWS::S3::Bucket
+
+  BackendApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Auth:
+        DefaultAuthorizer: NONE
 
   FrontendDistribution:
     Type: AWS::CloudFront::Distribution
@@ -23,9 +33,9 @@ Resources:
           - Id: FrontendBucket
             DomainName: !GetAtt FrontendBucket.RegionalDomainName
             S3OriginConfig:
-              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront.${CloudFrontOriginAccessIdentity}'
+              OriginAccessIdentity: !Sub 'origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}'
           - Id: Backend
-            DomainName: !Sub '${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com'
+            DomainName: !Sub '${BackendApi}.execute-api.${AWS::Region}.amazonaws.com'
             OriginPath: '/Prod'
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
@@ -63,14 +73,34 @@ Resources:
               - Bucket: !Ref FrontendBucket
       Bucket: !Ref FrontendBucket
 
-  CloudFrontOriginAccessIdentity:
-    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+  SchedulerGroup:
+    Type: AWS::Scheduler::ScheduleGroup
     Properties:
-      CloudFrontOriginAccessIdentityConfig:
-        Comment: CloudFront Access Identity
+      Name: KeyGiveawayGroup
+
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: '/'
+      Policies:
+        - PolicyName: execute-raffle-lambda
+          PolicyDocument:
+            Statement:
+              - Effect: Allow
+                Action:
+                  - lambda:InvokeFunction
+                Resource: !Sub 'arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:${HandleRaffleFunction}'
 
   KeyGiveawayTable:
-    Type: AWS::Serverless::Table
+    Type: AWS::DynamoDB::Table
     Properties:
       AttributeDefinitions:
         - AttributeName: PK
@@ -93,13 +123,6 @@ Resources:
               - Expiry
             ProjectionType: INCLUDE
       TableName: KeyGiveaway
-
-  BackendApi:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Prod
-      Auth:
-        DefaultAuthorizer: NONE
 
   AddRaffleEntryFunction:
     Type: AWS::Serverless::Function
@@ -193,7 +216,7 @@ Resources:
       Permissions:
         - Read
 
-PingFunction:
+  PingFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: Ping
@@ -229,6 +252,13 @@ PingFunction:
     Properties:
       Handler: HandleRaffle
       CodeUri: ./deploy/HandleRaffle.zip
+      Policies:
+        - Statement:
+            - Sid: DeleteSchedulePolicy
+              Effect: Allow
+              Action:
+                - scheduler:DeleteSchedule
+              Resource: !Sub 'arn:aws:scheduler:${AWS::Region}:${AWS::AccountId}:schedule/KeyGiveawayGroup/*'
 
   HandleRaffleConnector:
     Type: AWS::Serverless::Connector
@@ -240,8 +270,6 @@ PingFunction:
       Permissions:
         - Read
         - Write
-
-  
 
 Outputs:
   Website:
