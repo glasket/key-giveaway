@@ -51,7 +51,7 @@ func Start(ctx context.Context, req events.APIGatewayProxyRequest) (*http.Reques
 		return nil, nil, nil, err
 	}
 	w := core.ProxyResponseWriter{}
-	w.Header().Set("Content-Type", "applicat")
+	w.Header().Set("Content-Type", "application/json")
 	store := sessions.NewCookieStore(hmacKey, encKey)
 	s, err := store.Get(r, "kga_sess")
 	s.Options = &sessions.Options{
