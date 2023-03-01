@@ -63,8 +63,7 @@ func (d Drop) Save() error {
 func (d Drop) GetItems() (Drop, error) {
 	e := BuildDropEntity(d)
 	expr, err := expression.NewBuilder().
-		WithKeyCondition(expression.Key("PK").Equal(expression.Value(e.PK))).
-		WithFilter(expression.BeginsWith(expression.Name("SK"), string(itemEntityTag))).
+		WithKeyCondition(expression.KeyAnd(expression.Key("PK").Equal(expression.Value(e.PK)), expression.Key("SK").BeginsWith(string(itemEntityTag)))).
 		Build()
 	if err != nil {
 		return d, err
@@ -75,8 +74,10 @@ func (d Drop) GetItems() (Drop, error) {
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		KeyConditionExpression:    expr.KeyCondition(),
-		FilterExpression:          expr.Filter(),
 	})
+	if err != nil {
+		return d, err
+	}
 	items := resp.Items
 	for resp.LastEvaluatedKey != nil {
 		resp, err = db.Query(ctx, &dynamodb.QueryInput{
@@ -84,7 +85,6 @@ func (d Drop) GetItems() (Drop, error) {
 			ExpressionAttributeNames:  expr.Names(),
 			ExpressionAttributeValues: expr.Values(),
 			KeyConditionExpression:    expr.KeyCondition(),
-			FilterExpression:          expr.Filter(),
 			ExclusiveStartKey:         resp.LastEvaluatedKey,
 		})
 		if err != nil {
