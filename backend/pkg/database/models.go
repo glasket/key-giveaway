@@ -30,6 +30,15 @@ func (u User) Tag() rune {
 	return userEntityTag
 }
 
+func (u *User) IsFriend() (bool, error) {
+	e := BuildUserEntity(*u)
+	err := e.Get()
+	if err != nil {
+		return false, err
+	}
+	return e.Friends, nil
+}
+
 type Drop struct {
 	ID    string    `json:"id"`
 	Name  string    `json:"name"`

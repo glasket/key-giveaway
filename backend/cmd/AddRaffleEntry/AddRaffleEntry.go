@@ -35,6 +35,19 @@ func addRaffleEntry(ctx context.Context, req events.APIGatewayProxyRequest) (eve
 		return fw.InvalidCookie(writer)
 	}
 
+	userId, ok := session.Values["id"].(string)
+	if !ok {
+		return fw.Error(errors.New("session id not correctly set"))
+	}
+	u := database.User{ID: userId}
+	friend, err := u.IsFriend()
+	if err != nil {
+		return fw.Error(err)
+	}
+	if !friend {
+		return fw.NotFriends(writer)
+	}
+
 	var reqJson requestJson
 	err = json.Unmarshal([]byte(req.Body), &reqJson)
 	if err != nil {
@@ -43,10 +56,6 @@ func addRaffleEntry(ctx context.Context, req events.APIGatewayProxyRequest) (eve
 	item := database.Item{
 		DropId: reqJson.DropID,
 		ID:     reqJson.ItemID,
-	}
-	userId, ok := session.Values["id"].(string)
-	if !ok {
-		return fw.Error(errors.New("session id not correctly set"))
 	}
 	item, err = item.AddRaffleEntry(userId)
 	if err != nil {
