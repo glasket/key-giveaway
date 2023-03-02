@@ -50,7 +50,7 @@ func BuildUserEntity(u User) UserEntity {
 	}
 }
 
-func (u UserEntity) Get() error {
+func (u *UserEntity) Get() error {
 	o, err := db.GetItem(ctx, &dynamodb.GetItemInput{
 		Key:       getEntityKey(u),
 		TableName: TableName,
