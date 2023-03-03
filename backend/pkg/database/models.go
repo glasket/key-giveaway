@@ -3,11 +3,9 @@ package database
 import (
 	"time"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/glasket/datastructures/set"
 )
 
@@ -114,50 +112,40 @@ func (d Drop) GetItems() (Drop, error) {
 	return d, nil
 }
 
-func GetAllDrops(lastKey map[string]types.AttributeValue) ([]Drop, map[string]types.AttributeValue, error) {
+func GetAllDrops() ([]Drop, error) {
 	expr, err := expression.
 		NewBuilder().
 		WithFilter(expression.
 			And(
-				expression.BeginsWith(expression.Name("PK"), string(dropEntityTag)),
-				expression.BeginsWith(expression.Name("SK"), string(dropEntityTag)),
+				expression.And(
+					expression.BeginsWith(expression.Name("PK"), string(dropEntityTag)),
+					expression.BeginsWith(expression.Name("SK"), string(dropEntityTag)),
+				),
+				expression.GreaterThan(expression.Name("End"), expression.Value(time.Now().UTC().String())),
 			)).
 		Build()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	out, err := db.Scan(ctx, &dynamodb.ScanInput{
 		TableName:                 TableName,
 		ExpressionAttributeNames:  expr.Names(),
 		ExpressionAttributeValues: expr.Values(),
 		FilterExpression:          expr.Filter(),
-		Limit:                     aws.Int32(11),
-		ExclusiveStartKey:         lastKey,
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	var dropEntities []DropEntity
 	err = attributevalue.UnmarshalListOfMaps(out.Items, &dropEntities)
 	if err != nil {
-		return nil, nil, err
-	}
-	if out.LastEvaluatedKey != nil {
-		dropEntities = dropEntities[:len(dropEntities)-1]
-		e := dropEntities[len(dropEntities)-1]
-		out.LastEvaluatedKey, err = attributevalue.MarshalMap(Key{
-			PK: e.PK,
-			SK: e.SK,
-		})
-		if err != nil {
-			return nil, nil, err
-		}
+		return nil, err
 	}
 	var drops []Drop
 	for _, i := range dropEntities {
 		drops = append(drops, i.ToDrop())
 	}
-	return drops, out.LastEvaluatedKey, nil
+	return drops, nil
 }
 
 type Item struct {

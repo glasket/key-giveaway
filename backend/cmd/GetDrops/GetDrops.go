@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 )
 
 func init() {
@@ -28,29 +27,13 @@ func GetDrops(ctx context.Context, req events.APIGatewayProxyRequest) (events.AP
 	}
 	database.SetContext(ctx)
 
-	var lastKey struct {
-		LastKey map[string]types.AttributeValue `json:"last_key"`
-	}
-	if json.Valid([]byte(req.Body)) {
-		err = json.Unmarshal([]byte(req.Body), &lastKey)
-		if err != nil {
-			return fw.Error(err)
-		}
-	}
-
 	var drops []database.Drop
-	drops, lastKey.LastKey, err = database.GetAllDrops(lastKey.LastKey)
+	drops, err = database.GetAllDrops()
 	if err != nil {
 		return fw.Error(err)
 	}
 
-	resp, err := json.Marshal(struct {
-		Drops   []database.Drop                 `json:"drops"`
-		LastKey map[string]types.AttributeValue `json:"last_key"`
-	}{
-		Drops:   drops,
-		LastKey: lastKey.LastKey,
-	})
+	resp, err := json.Marshal(drops)
 	if err != nil {
 		return fw.Error(err)
 	}
