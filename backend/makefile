@@ -34,22 +34,22 @@ deploy/Ping.zip: bin/lambda/Ping
 	chmod +x $?; zip -j $@ $?
 
 bin/lambda/AddRaffleEntry: cmd/AddRaffleEntry/AddRaffleEntry.go $(PKG)
-	$(COMP) $@ $?
+	$(COMP) $@ $<
 
 bin/lambda/GetDropItems: cmd/GetDropItems/GetDropItems.go $(PKG)
-	$(COMP) $@ $?
+	$(COMP) $@ $<
 
 bin/lambda/GetDrops: cmd/GetDrops/GetDrops.go $(PKG)
-	$(COMP) $@ $?
+	$(COMP) $@ $<
 
 bin/lambda/GetWonItems: cmd/GetWonItems/GetWonItems.go $(PKG)
-	$(COMP) $@ $?
+	$(COMP) $@ $<
 
 bin/lambda/HandleRaffle: cmd/HandleRaffle/HandleRaffle.go $(PKG)
-	$(COMP) $@ $?
+	$(COMP) $@ $<
 
 bin/lambda/Login: cmd/Login/Login.go $(PKG)
-	$(COMP) $@ $?
+	$(COMP) $@ $<
 
 bin/lambda/Ping: cmd/Ping/Ping.go $(PKG)
-	$(COMP) $@ $?
+	$(COMP) $@ $<
