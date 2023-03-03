@@ -45,13 +45,10 @@ func Response(statusCode int, header map[string]string, body interface{}) (event
 }
 
 func Start(ctx context.Context, req events.APIGatewayProxyRequest) (*http.Request, *core.ProxyResponseWriter, *sessions.Session, error) {
-	ra := core.RequestAccessor{}
-	r, err := ra.EventToRequestWithContext(ctx, req)
+	r, w, err := StartNoSession(ctx, req)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	w := core.ProxyResponseWriter{}
-	w.Header().Set("Content-Type", "application/json")
 	store := sessions.NewCookieStore(hmacKey, encKey)
 	s, err := store.Get(r, "kga_sess")
 	s.Options = &sessions.Options{
@@ -64,10 +61,21 @@ func Start(ctx context.Context, req events.APIGatewayProxyRequest) (*http.Reques
 	if err != nil {
 		// Something went wrong with decoding, so invalidate the cookie
 		s.Options.MaxAge = -1
-		s.Save(r, &w)
-		return nil, &w, s, nil
+		s.Save(r, w)
+		return nil, w, s, nil
 	}
-	return r, &w, s, nil
+	return r, w, s, nil
+}
+
+func StartNoSession(ctx context.Context, req events.APIGatewayProxyRequest) (*http.Request, *core.ProxyResponseWriter, error) {
+	ra := core.RequestAccessor{}
+	r, err := ra.EventToRequestWithContext(ctx, req)
+	if err != nil {
+		return nil, nil, err
+	}
+	w := core.NewProxyResponseWriter()
+	w.Header().Set("Content-Type", "application/json")
+	return r, w, nil
 }
 
 func NotFriends(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, error) {

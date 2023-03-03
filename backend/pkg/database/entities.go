@@ -113,6 +113,14 @@ func (d DropEntity) Save() error {
 	return err
 }
 
+func (d DropEntity) ToDrop() Drop {
+	return Drop{
+		ID:   keyToId(d.PK),
+		Name: d.Name,
+		End:  d.End,
+	}
+}
+
 func (d DropEntity) getKey() Key { return d.Key }
 
 type DropItemEntity struct {
@@ -159,8 +167,8 @@ func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity,
 
 func (d DropItemEntity) ToItem() Item {
 	return Item{
-		ID:     strings.Split(d.SK, "#")[1],
-		DropId: strings.Split(d.PK, "#")[1],
+		ID:     keyToId(d.SK),
+		DropId: keyToId(d.PK),
 		Name:   d.Name,
 		Items:  d.Items,
 	}
@@ -206,4 +214,8 @@ func getEntityItem(e interface{}) map[string]types.AttributeValue {
 		log.Fatal().Err(err).Msg("")
 	}
 	return i
+}
+
+func keyToId(key string) string {
+	return strings.Split(key, "#")[1]
 }

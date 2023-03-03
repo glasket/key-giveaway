@@ -45,6 +45,7 @@ func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGa
 	if request == nil {
 		return fw.InvalidCookie(writer)
 	}
+	database.SetContext(ctx)
 
 	var reqJson requestJson
 	err = json.Unmarshal([]byte(req.Body), &reqJson)

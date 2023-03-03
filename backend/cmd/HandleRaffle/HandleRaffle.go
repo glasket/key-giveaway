@@ -28,6 +28,7 @@ func HandleRaffle(ctx context.Context, evt events.CloudWatchEvent) error {
 	if err != nil {
 		return err
 	}
+	database.SetContext(ctx)
 	drop := database.Drop{
 		ID: req.DropID,
 	}

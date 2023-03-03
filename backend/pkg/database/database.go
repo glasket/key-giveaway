@@ -14,12 +14,12 @@ const (
 
 var (
 	TableName *string = aws.String(TableNameValue)
-	db        dynamodb.Client
+	db        *dynamodb.Client
 	ctx       context.Context
 )
 
 func Init(cfg aws.Config) {
-	db = *dynamodb.NewFromConfig(cfg)
+	db = dynamodb.NewFromConfig(cfg)
 }
 
 func SetContext(c context.Context) {

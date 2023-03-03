@@ -34,6 +34,7 @@ func addRaffleEntry(ctx context.Context, req events.APIGatewayProxyRequest) (eve
 	if request == nil {
 		return fw.InvalidCookie(writer)
 	}
+	database.SetContext(ctx)
 
 	userId, ok := session.Values["id"].(string)
 	if !ok {
