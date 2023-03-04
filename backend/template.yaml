@@ -30,11 +30,9 @@ Resources:
     Type: AWS::S3::Bucket
 
   BackendApi:
-    Type: AWS::Serverless::Api
+    Type: AWS::Serverless::HttpApi
     Properties:
       StageName: Prod
-      Auth:
-        DefaultAuthorizer: NONE
 
   FrontendDistribution:
     Type: AWS::CloudFront::Distribution
@@ -142,9 +140,9 @@ Resources:
       CodeUri: ./deploy/AddRaffleEntry.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/entry
             Method: POST
 
@@ -165,9 +163,9 @@ Resources:
       CodeUri: ./deploy/RemoveRaffleEntry.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/entry
             Method: DELETE
 
@@ -188,9 +186,9 @@ Resources:
       CodeUri: ./deploy/GetDropItems.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/drop
             Method: POST
 
@@ -211,9 +209,9 @@ Resources:
       CodeUri: ./deploy/GetDrops.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/drops
             Method: GET
 
@@ -234,9 +232,9 @@ Resources:
       CodeUri: ./deploy/GetWonItems.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/won-items
             Method: GET
 
@@ -257,9 +255,9 @@ Resources:
       CodeUri: ./deploy/Ping.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/ping
             Method: GET
 
@@ -271,9 +269,9 @@ Resources:
       CodeUri: ./deploy/Login.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/login
             Method: POST
       Environment:
@@ -289,9 +287,9 @@ Resources:
       CodeUri: ./deploy/Logout.zip
       Events:
         CatchAll:
-          Type: Api
+          Type: HttpApi
           Properties:
-            RestApiId: !Ref BackendApi
+            ApiId: !Ref BackendApi
             Path: /api/logout
             Method: POST
 
