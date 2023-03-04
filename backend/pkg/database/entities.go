@@ -199,6 +199,10 @@ func (d DropItemEntity) RemoveRaffleEntry(userId string) (newEntity DropItemEnti
 }
 
 func (d DropItemEntity) ToItem() Item {
+	for i := range d.Items {
+		// Drops never need to have access to the key
+		d.Items[i].Key = ""
+	}
 	return Item{
 		ID:     keyToId(d.SK),
 		DropId: keyToId(d.PK),

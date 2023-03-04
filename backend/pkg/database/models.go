@@ -17,9 +17,9 @@ const (
 )
 
 type User struct {
-	ID       string
-	Friends  bool
-	WonItems []Item
+	ID       string `json:"id"`
+	Friends  bool   `json:"is_friends"`
+	WonItems []Item `json:"won_items"`
 }
 
 func (u User) Id() string {
@@ -58,6 +58,9 @@ func (u *User) GetItems() error {
 		ExpressionAttributeValues: expr.Values(),
 		KeyConditionExpression:    expr.KeyCondition(),
 	})
+	if err != nil {
+		return err
+	}
 	var userItemEntities []UserItemEntity
 	err = attributevalue.UnmarshalListOfMaps(resp.Items, &userItemEntities)
 	if err != nil {
@@ -185,7 +188,7 @@ func GetAllDrops() ([]Drop, error) {
 
 type Item struct {
 	ID      string          `json:"id"`
-	DropId  string          `json:"dropId"`
+	DropId  string          `json:"drop_id"`
 	Name    string          `json:"name"`
 	Items   []GameItem      `json:"items"`
 	Entries set.Set[string] `json:"entries"`

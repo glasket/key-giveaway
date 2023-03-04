@@ -184,7 +184,7 @@ Resources:
   GetDropItemsFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: GetDropItem
+      Handler: GetDropItems
       CodeUri: ./deploy/GetDropItems.zip
       Events:
         CatchAll:
@@ -192,7 +192,7 @@ Resources:
           Properties:
             RestApiId: !Ref BackendApi
             Path: /api/drop
-            Method: GET
+            Method: POST
 
   GetDropItemsConnector:
     Type: AWS::Serverless::Connector
