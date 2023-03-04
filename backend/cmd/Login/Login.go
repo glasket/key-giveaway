@@ -8,20 +8,11 @@ import (
 	"key-giveaway/pkg/fw"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
-)
-
-const (
-	fb_secret string = "prod/keygiveaway/facebook"
-)
-
-var (
-	sec secretsmanager.Client
 )
 
 func init() {
@@ -30,7 +21,6 @@ func init() {
 		panic(err)
 	}
 	database.Init(cfg)
-	sec = *secretsmanager.NewFromConfig(cfg)
 }
 
 type requestJson struct {
@@ -67,20 +57,11 @@ func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGa
 		fw.Error(err)
 	}
 
-	var fbSecret facebookSecret
-	res, err := sec.GetSecretValue(ctx, &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(fb_secret),
-	})
-	if err != nil {
-		fw.Error(err)
-	}
-	if err = json.Unmarshal([]byte(*res.SecretString), &fbSecret); err != nil {
-		fw.Error(err)
-	}
-	fb.Id = fbSecret.Id
-	fb.Secret = fbSecret.Secret
+	fb.Id = os.Getenv("facebookApiId")
+	fb.Secret = os.Getenv("facebookApiSecret")
+	ownerId := os.Getenv("facebookApiOwnerId")
 
-	friends, err := fb.Friends(userId, fbSecret.OwnerId)
+	friends, err := fb.Friends(userId, ownerId)
 	if err != nil {
 		fw.Error(err)
 	}
@@ -132,10 +113,4 @@ func checkIfUserExists(ctx context.Context, id string) (bool, error) {
 		return false, err
 	}
 	return true, nil
-}
-
-type facebookSecret struct {
-	Id      string `json:"app_id"`
-	Secret  string `json:"app_secret"`
-	OwnerId string `json:"owner_id"`
 }

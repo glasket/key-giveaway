@@ -8,6 +8,17 @@ Globals:
     Architectures:
       - x86_64
 
+Parameters:
+  FacebookApiSecret:
+    Type: String
+    NoEcho: true
+  FacebookApiId:
+    Type: String
+    NoEcho: true
+  FacebookOwnerId:
+    Type: String
+    NoEcho: true
+
 Resources:
   CloudFrontOriginAccessIdentity:
     Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
@@ -147,6 +158,29 @@ Resources:
       Permissions:
         - Write
 
+  RemoveRaffleEntryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: AddRaffleEntry
+      CodeUri: ./deploy/RemoveRaffleEntry.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/entry
+            Method: DELETE
+
+  RemoveRaffleEntryConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: RemoveRaffleEntryFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Write
+
   GetDropItemsFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -242,9 +276,24 @@ Resources:
             RestApiId: !Ref BackendApi
             Path: /api/login
             Method: POST
-      Policies:
-        - AWSSecretsManagerGetSecretValuePolicy:
-            SecretArn: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:prod/keygiveaway/facebook-sDFwKY'
+      Environment:
+        Variables:
+          facebookApiId: !Ref FacebookApiId
+          facebookApiSecret: !Ref FacebookApiSecret
+          facebookOwnerId: !Ref FacebookOwnerId
+
+  LogoutFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: Logout
+      CodeUri: ./deploy/Logout.zip
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            RestApiId: !Ref BackendApi
+            Path: /api/logout
+            Method: POST
 
   # Automated Call
   HandleRaffleFunction:
