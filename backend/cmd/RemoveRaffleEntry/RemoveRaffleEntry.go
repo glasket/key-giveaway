@@ -20,29 +20,42 @@ func init() {
 	database.Init(cfg)
 }
 
-func GetWonItems(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+type requestJson struct {
+	DropID string `json:"drop_id"`
+	ItemID string `json:"item_id"`
+}
+
+func RemoveRaffleEntry(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request, writer, session, err := fw.Start(ctx, req)
 	if err != nil {
 		return fw.Error(err)
 	}
+	// Nil request means the session was already invalidated in fw.Start()
 	if request == nil {
 		return fw.InvalidCookie(writer)
 	}
 	database.SetContext(ctx)
 
-	uid, ok := session.Values["id"].(string)
+	userId, ok := session.Values["id"].(string)
 	if !ok {
 		return fw.Unauthorized(writer)
 	}
-	user := database.User{
-		ID: uid,
+
+	var reqJson requestJson
+	err = json.Unmarshal([]byte(req.Body), &reqJson)
+	if err != nil {
+		return fw.Error(err)
 	}
-	err = user.GetItems()
+	item := database.Item{
+		DropId: reqJson.DropID,
+		ID:     reqJson.ItemID,
+	}
+	item, err = item.RemoveRaffleEntry(userId)
 	if err != nil {
 		return fw.Error(err)
 	}
 
-	resp, err := json.Marshal(user.WonItems)
+	resp, err := json.Marshal(item)
 	if err != nil {
 		return fw.Error(err)
 	}
@@ -52,5 +65,5 @@ func GetWonItems(ctx context.Context, req events.APIGatewayProxyRequest) (events
 }
 
 func main() {
-	lambda.Start(GetWonItems)
+	lambda.Start(RemoveRaffleEntry)
 }

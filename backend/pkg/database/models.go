@@ -39,6 +39,36 @@ func (u *User) IsFriend() (bool, error) {
 	return e.Friends, nil
 }
 
+func (u *User) GetItems() error {
+	e := BuildUserEntity(*u)
+	expr, err := expression.NewBuilder().
+		WithKeyCondition(
+			expression.KeyAnd(
+				expression.KeyEqual(expression.Key("PK"), expression.Value(e.PK)),
+				expression.KeyBeginsWith(expression.Key("SK"), string(itemEntityTag)),
+			)).
+		Build()
+	if err != nil {
+		return err
+	}
+	var resp *dynamodb.QueryOutput
+	resp, err = db.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 TableName,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		KeyConditionExpression:    expr.KeyCondition(),
+	})
+	var userItemEntities []UserItemEntity
+	err = attributevalue.UnmarshalListOfMaps(resp.Items, &userItemEntities)
+	if err != nil {
+		return err
+	}
+	for _, i := range userItemEntities {
+		u.WonItems = append(u.WonItems, i.ToItem())
+	}
+	return nil
+}
+
 type Drop struct {
 	ID    string    `json:"id"`
 	Name  string    `json:"name"`
@@ -72,7 +102,11 @@ func (d Drop) Save() error {
 func (d Drop) GetItems() (Drop, error) {
 	e := BuildDropEntity(d)
 	expr, err := expression.NewBuilder().
-		WithKeyCondition(expression.KeyAnd(expression.Key("PK").Equal(expression.Value(e.PK)), expression.KeyBeginsWith(expression.Key("SK"), string(itemEntityTag)))).
+		WithKeyCondition(
+			expression.KeyAnd(
+				expression.KeyEqual(expression.Key("PK"), expression.Value(e.PK)),
+				expression.KeyBeginsWith(expression.Key("SK"), string(itemEntityTag)),
+			)).
 		Build()
 	if err != nil {
 		return d, err
@@ -87,25 +121,26 @@ func (d Drop) GetItems() (Drop, error) {
 	if err != nil {
 		return d, err
 	}
-	items := resp.Items
-	for resp.LastEvaluatedKey != nil {
-		resp, err = db.Query(ctx, &dynamodb.QueryInput{
-			TableName:                 TableName,
-			ExpressionAttributeNames:  expr.Names(),
-			ExpressionAttributeValues: expr.Values(),
-			KeyConditionExpression:    expr.KeyCondition(),
-			ExclusiveStartKey:         resp.LastEvaluatedKey,
-		})
-		if err != nil {
-			return d, err
-		}
-		items = append(items, resp.Items...)
-		if resp.LastEvaluatedKey == nil {
-			break
-		}
-	}
+	// Estimate ~8000 items or so per MB, so leave this out unless proved otherwise
+	// items := resp.Items
+	// for resp.LastEvaluatedKey != nil {
+	// 	resp, err = db.Query(ctx, &dynamodb.QueryInput{
+	// 		TableName:                 TableName,
+	// 		ExpressionAttributeNames:  expr.Names(),
+	// 		ExpressionAttributeValues: expr.Values(),
+	// 		KeyConditionExpression:    expr.KeyCondition(),
+	// 		ExclusiveStartKey:         resp.LastEvaluatedKey,
+	// 	})
+	// 	if err != nil {
+	// 		return d, err
+	// 	}
+	// 	items = append(items, resp.Items...)
+	// 	if resp.LastEvaluatedKey == nil {
+	// 		break
+	// 	}
+	// }
 	var dropItemEntityList []DropItemEntity
-	attributevalue.UnmarshalListOfMaps(items, &dropItemEntityList)
+	attributevalue.UnmarshalListOfMaps(resp.Items, &dropItemEntityList)
 	for _, item := range dropItemEntityList {
 		d.Items = append(d.Items, item.ToItem())
 	}
@@ -171,6 +206,15 @@ func (i Item) AddRaffleEntry(userId string) (Item, error) {
 		return Item{}, err
 	}
 	return entity.ToItem(), nil
+}
+
+func (i Item) RemoveRaffleEntry(userId string) (Item, error) {
+	e := BuildDropItemEntity(Drop{ID: i.DropId}, i)
+	e, err := e.RemoveRaffleEntry(userId)
+	if err != nil {
+		return Item{}, err
+	}
+	return e.ToItem(), nil
 }
 
 type GameItem struct {

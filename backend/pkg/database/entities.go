@@ -90,6 +90,14 @@ func BuildUserItemEntity(u User, i Item) UserItemEntity {
 	}
 }
 
+func (e *UserItemEntity) ToItem() Item {
+	return Item{
+		ID:    keyToId(e.SK),
+		Name:  e.Name,
+		Items: e.Items,
+	}
+}
+
 type DropEntity struct {
 	Key
 	Name string
@@ -143,16 +151,16 @@ func BuildDropItemEntity(d Drop, i Item) DropItemEntity {
 func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity, err error) {
 	addSet := types.AttributeValueMemberSS{Value: []string{userId}}
 	update := expression.Add(expression.Name("entries"), expression.Value(addSet))
-	exp, err := expression.NewBuilder().WithUpdate(update).Build()
+	expr, err := expression.NewBuilder().WithUpdate(update).Build()
 	if err != nil {
 		return newEntity, err
 	}
 	resp, err := db.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		Key:                       getEntityKey(d),
 		TableName:                 TableName,
-		ExpressionAttributeNames:  exp.Names(),
-		ExpressionAttributeValues: exp.Values(),
-		UpdateExpression:          exp.Update(),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
 		ReturnValues:              types.ReturnValueAllNew,
 	})
 	if err != nil {
@@ -163,6 +171,31 @@ func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity,
 		return newEntity, err
 	}
 	return newEntity, err
+}
+
+func (d DropItemEntity) RemoveRaffleEntry(userId string) (newEntity DropItemEntity, err error) {
+	removeSet := types.AttributeValueMemberSS{Value: []string{userId}}
+	update := expression.Delete(expression.Name("entries"), expression.Value(removeSet))
+	expr, err := expression.NewBuilder().WithUpdate(update).Build()
+	if err != nil {
+		return newEntity, err
+	}
+	resp, err := db.UpdateItem(ctx, &dynamodb.UpdateItemInput{
+		Key:                       getEntityKey(d),
+		TableName:                 TableName,
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		UpdateExpression:          expr.Update(),
+		ReturnValues:              types.ReturnValueAllNew,
+	})
+	if err != nil {
+		return newEntity, err
+	}
+	err = attributevalue.UnmarshalMap(resp.Attributes, &newEntity)
+	if err != nil {
+		return newEntity, err
+	}
+	return newEntity, nil
 }
 
 func (d DropItemEntity) ToItem() Item {

@@ -98,6 +98,26 @@ func InvalidCookie(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse,
 	return w.GetProxyResponse()
 }
 
+func Unauthorized(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, error) {
+	w.WriteHeader(http.StatusUnauthorized)
+	resp, err := json.Marshal(ErrorResponse{Reason: "session id not set"})
+	if err != nil {
+		return Error(err)
+	}
+	w.Write(resp)
+	return w.GetProxyResponse()
+}
+
+func BadRequest(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, error) {
+	w.WriteHeader(http.StatusBadRequest)
+	resp, err := json.Marshal(ErrorResponse{Reason: "invalid json body"})
+	if err != nil {
+		return Error(err)
+	}
+	w.Write(resp)
+	return w.GetProxyResponse()
+}
+
 func Error(err error) (events.APIGatewayProxyResponse, error) {
 	return events.APIGatewayProxyResponse{}, err
 }

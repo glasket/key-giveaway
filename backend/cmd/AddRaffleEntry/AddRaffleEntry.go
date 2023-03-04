@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/fw"
 	"net/http"
@@ -38,7 +37,7 @@ func addRaffleEntry(ctx context.Context, req events.APIGatewayProxyRequest) (eve
 
 	userId, ok := session.Values["id"].(string)
 	if !ok {
-		return fw.Error(errors.New("session id not correctly set"))
+		return fw.Unauthorized(writer)
 	}
 	u := database.User{ID: userId}
 	friend, err := u.IsFriend()
