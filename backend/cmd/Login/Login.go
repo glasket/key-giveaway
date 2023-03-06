@@ -27,6 +27,11 @@ type requestJson struct {
 	Token string `json:"token"`
 }
 
+type response struct {
+	Token   facebook.Token `json:"token"`
+	Friends bool           `json:"is_friends"`
+}
+
 func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	request, writer, session, err := fw.Start(ctx, req)
 	if err != nil {
@@ -90,11 +95,12 @@ func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGa
 	session.Save(request, writer)
 
 	writer.WriteHeader(http.StatusOK)
-	tokenJson, err := json.Marshal(longToken)
+	resp := response{Token: longToken, Friends: u.Friends}
+	respJson, err := json.Marshal(resp)
 	if err != nil {
 		return fw.Error(err)
 	}
-	writer.Write(tokenJson)
+	writer.Write(respJson)
 	return writer.GetProxyResponse()
 }
 
