@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/awslabs/aws-lambda-go-api-proxy/core"
 	"github.com/gorilla/sessions"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -25,26 +26,27 @@ var (
 	encKey []byte
 )
 
-func Response(statusCode int, header map[string]string, body interface{}) (events.APIGatewayProxyResponse, error) {
+func Response(statusCode int, header map[string]string, body interface{}) (events.APIGatewayV2HTTPResponse, error) {
 	if header == nil {
 		header = make(map[string]string)
 	}
 
 	bodyJson, err := json.Marshal(body)
 	if err != nil {
-		return events.APIGatewayProxyResponse{}, err
+		return events.APIGatewayV2HTTPResponse{}, err
 	}
 
 	header["Content-Type"] = "application/json"
 
-	return events.APIGatewayProxyResponse{
+	return events.APIGatewayV2HTTPResponse{
 		StatusCode: statusCode,
 		Headers:    header,
 		Body:       string(bodyJson),
 	}, nil
 }
 
-func Start(ctx context.Context, req events.APIGatewayProxyRequest) (*http.Request, *core.ProxyResponseWriter, *sessions.Session, error) {
+func Start(ctx context.Context, req events.APIGatewayV2HTTPRequest) (*http.Request, *core.ProxyResponseWriterV2, *sessions.Session, error) {
+	log.Info().Str("request", req.Body).Msg("")
 	r, w, err := StartNoSession(ctx, req)
 	if err != nil {
 		return nil, nil, nil, err
@@ -61,24 +63,27 @@ func Start(ctx context.Context, req events.APIGatewayProxyRequest) (*http.Reques
 	if err != nil {
 		// Something went wrong with decoding, so invalidate the cookie
 		s.Options.MaxAge = -1
-		s.Save(r, w)
+		err = s.Save(r, w)
+		if err != nil {
+			return nil, nil, nil, err
+		}
 		return nil, w, s, nil
 	}
 	return r, w, s, nil
 }
 
-func StartNoSession(ctx context.Context, req events.APIGatewayProxyRequest) (*http.Request, *core.ProxyResponseWriter, error) {
-	ra := core.RequestAccessor{}
+func StartNoSession(ctx context.Context, req events.APIGatewayV2HTTPRequest) (*http.Request, *core.ProxyResponseWriterV2, error) {
+	ra := core.RequestAccessorV2{}
 	r, err := ra.EventToRequestWithContext(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
-	w := core.NewProxyResponseWriter()
+	w := core.NewProxyResponseWriterV2()
 	w.Header().Set("Content-Type", "application/json")
 	return r, w, nil
 }
 
-func NotFriends(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, error) {
+func NotFriends(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse, error) {
 	w.WriteHeader(http.StatusUnauthorized)
 	resp, err := json.Marshal(ErrorResponse{Reason: "not friends"})
 	if err != nil {
@@ -88,7 +93,7 @@ func NotFriends(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, er
 	return w.GetProxyResponse()
 }
 
-func InvalidCookie(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, error) {
+func InvalidCookie(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse, error) {
 	w.WriteHeader(http.StatusUnauthorized)
 	resp, err := json.Marshal(ErrorResponse{Reason: "invalid cookie"})
 	if err != nil {
@@ -98,7 +103,7 @@ func InvalidCookie(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse,
 	return w.GetProxyResponse()
 }
 
-func Unauthorized(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, error) {
+func Unauthorized(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse, error) {
 	w.WriteHeader(http.StatusUnauthorized)
 	resp, err := json.Marshal(ErrorResponse{Reason: "session id not set"})
 	if err != nil {
@@ -108,7 +113,7 @@ func Unauthorized(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, 
 	return w.GetProxyResponse()
 }
 
-func BadRequest(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, error) {
+func BadRequest(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse, error) {
 	w.WriteHeader(http.StatusBadRequest)
 	resp, err := json.Marshal(ErrorResponse{Reason: "invalid json body"})
 	if err != nil {
@@ -118,6 +123,6 @@ func BadRequest(w *core.ProxyResponseWriter) (events.APIGatewayProxyResponse, er
 	return w.GetProxyResponse()
 }
 
-func Error(err error) (events.APIGatewayProxyResponse, error) {
-	return events.APIGatewayProxyResponse{}, err
+func Error(err error) (events.APIGatewayV2HTTPResponse, error) {
+	return events.APIGatewayV2HTTPResponse{}, err
 }

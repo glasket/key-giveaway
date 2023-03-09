@@ -24,7 +24,7 @@ type request struct {
 	DropID string `json:"drop_id"`
 }
 
-func GetDropItems(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func GetDropItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	_, writer, err := fw.StartNoSession(ctx, req)
 	if err != nil {
 		return fw.Error(err)

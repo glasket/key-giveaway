@@ -6,13 +6,13 @@ import (
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/facebook"
 	"key-giveaway/pkg/fw"
-	"log"
 	"net/http"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/rs/zerolog/log"
 )
 
 func init() {
@@ -32,7 +32,7 @@ type response struct {
 	Friends bool           `json:"is_friends"`
 }
 
-func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func login(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	request, writer, session, err := fw.Start(ctx, req)
 	if err != nil {
 		return fw.Error(err)
@@ -64,11 +64,12 @@ func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGa
 
 	fb.Id = os.Getenv("facebookApiId")
 	fb.Secret = os.Getenv("facebookApiSecret")
-	ownerId := os.Getenv("facebookApiOwnerId")
+	ownerId := os.Getenv("facebookOwnerId")
 
 	friends, err := fb.Friends(userId, ownerId)
 	if err != nil {
-		fw.Error(err)
+		log.Error().Err(err).Msg("")
+		return fw.Error(err)
 	}
 
 	if !exists && !friends {
@@ -84,15 +85,20 @@ func login(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGa
 	// Exchange token
 	longToken, err := fb.ExchangeToken()
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Error().Err(err).Msg("")
+		return fw.Error(err)
 	}
 
 	// Invalidate session before Facebook token
 	// Simplifies session management somewhat
 	session.Options.MaxAge = *longToken.ExpiresIn - 300
-	session.Values["id"] = u.Id
+	session.Values["id"] = u.ID
 
-	session.Save(request, writer)
+	err = session.Save(request, writer)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return fw.Error(err)
+	}
 
 	writer.WriteHeader(http.StatusOK)
 	resp := response{Token: longToken, Friends: u.Friends}

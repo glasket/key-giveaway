@@ -25,7 +25,7 @@ type requestJson struct {
 	ItemID string `json:"item_id"`
 }
 
-func RemoveRaffleEntry(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func RemoveRaffleEntry(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	request, writer, session, err := fw.Start(ctx, req)
 	if err != nil {
 		return fw.Error(err)

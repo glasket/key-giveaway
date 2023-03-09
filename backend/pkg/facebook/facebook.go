@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -32,13 +35,26 @@ type fbError struct {
 	TraceId string `json:"fbtrace_id"`
 }
 
+func (err fbError) MarshalZerologObject(e *zerolog.Event) {
+	e.Str("message", err.Message).Str("type", err.Type).Int("code", err.Code).Str("trace_id", err.TraceId)
+}
+
 type fbResponse interface {
+	zerolog.LogObjectMarshaler
 	error() *fbError
 }
 
 type getUserIdResponse struct {
 	Id    *string  `json:"id"`
 	Error *fbError `json:"error"`
+}
+
+func (r getUserIdResponse) MarshalZerologObject(e *zerolog.Event) {
+	if r.Error != nil {
+		e.Object("error", r.Error)
+		return
+	}
+	e.Str("id", *r.Id)
 }
 
 func (r getUserIdResponse) error() *fbError {
@@ -57,6 +73,13 @@ func (c Client) GetUserId() (string, error) {
 type exchangeTokenResponse struct {
 	*Token
 	Error *fbError `json:"error"`
+}
+
+func (r exchangeTokenResponse) MarshalZerologObject(e *zerolog.Event) {
+	if r.Error != nil {
+		e.Object("error", r.Error)
+	}
+	// Don't log token info
 }
 
 func (r exchangeTokenResponse) error() *fbError {
@@ -82,6 +105,22 @@ func (c Client) ExchangeToken() (Token, error) {
 type friendResponse struct {
 	Data  []map[string]string
 	Error *fbError
+}
+
+func (r friendResponse) MarshalZerologObject(e *zerolog.Event) {
+	if r.Error != nil {
+		e.Object("error", r.Error)
+		return
+	}
+	count := len(r.Data)
+	e.Int("data_len", count)
+	if count != 0 {
+		for _, m := range r.Data {
+			for k, v := range m {
+				e.Str(k, v)
+			}
+		}
+	}
 }
 
 func (r friendResponse) error() *fbError {
@@ -112,6 +151,7 @@ func (c Client) invoke(url string, response fbResponse) error {
 	if err := json.NewDecoder(resp.Body).Decode(response); err != nil {
 		return err
 	}
+	log.Info().Str("req_url", url).Object("response", response).Msg("")
 	if response.error() != nil {
 		return errors.New(response.error().Message)
 	}
