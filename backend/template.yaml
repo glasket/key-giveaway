@@ -18,6 +18,9 @@ Parameters:
   FacebookOwnerId:
     Type: String
     NoEcho: true
+  AllowedOrigin:
+    Type: String
+    Default: https://giveaway.glasket.com
 
 Resources:
   CloudFrontOriginAccessIdentity:
@@ -33,6 +36,17 @@ Resources:
     Type: AWS::Serverless::HttpApi
     Properties:
       StageName: Prod
+      CorsConfiguration:
+        AllowHeaders:
+          - Content-Type
+        AllowMethods:
+          - GET
+          - POST
+          - DELETE
+          - OPTIONS
+        AllowOrigins:
+          - !Ref AllowedOrigin
+        AllowCredentials: true
 
   FrontendDistribution:
     Type: AWS::CloudFront::Distribution

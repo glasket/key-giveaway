@@ -15,15 +15,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-const (
-	application_key_secret string = "prod/keygiveaway/cipher"
-)
-
 var (
 	//go:embed hmac.key
 	hmacKey []byte
 	//go:embed enc.key
 	encKey []byte
+
+	host string = "giveaway.glasket.com"
+	port string = ""
 )
 
 func Response(statusCode int, header map[string]string, body interface{}) (events.APIGatewayV2HTTPResponse, error) {
@@ -54,11 +53,11 @@ func Start(ctx context.Context, req events.APIGatewayV2HTTPRequest) (*http.Reque
 	store := sessions.NewCookieStore(hmacKey, encKey)
 	s, err := store.Get(r, "kga_sess")
 	s.Options = &sessions.Options{
-		Path:     "/api/",
+		Path:     "/",
 		Secure:   true,
 		HttpOnly: false,
 		SameSite: http.SameSiteStrictMode,
-		Domain:   "giveaway.glasket.com",
+		Domain:   host,
 	}
 	if err != nil {
 		// Something went wrong with decoding, so invalidate the cookie
@@ -80,6 +79,10 @@ func StartNoSession(ctx context.Context, req events.APIGatewayV2HTTPRequest) (*h
 	}
 	w := core.NewProxyResponseWriterV2()
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+	w.Header().Set("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	w.Header().Set("Access-Control-Allow-Origin", "https://"+host+port)
 	return r, w, nil
 }
 
@@ -87,6 +90,7 @@ func NotFriends(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse,
 	w.WriteHeader(http.StatusUnauthorized)
 	resp, err := json.Marshal(ErrorResponse{Reason: "not friends"})
 	if err != nil {
+		log.Error().Err(err).Msg("")
 		return Error(err)
 	}
 	w.Write(resp)

@@ -1,4 +1,5 @@
-COMP = GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o
+LDFLAGS = -s -w
+COMP = GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="$(LDFLAGS)" -o
 DEPLOY = deploy/AddRaffleEntry.zip deploy/RemoveRaffleEntry.zip deploy/GetDropItems.zip deploy/GetDrops.zip deploy/GetWonItems.zip deploy/HandleRaffle.zip deploy/Login.zip deploy/Logout.zip deploy/Ping.zip
 PKG = $(shell find ./pkg -name '*.go')
 DEPLOYCMD = chmod +x $?; zip -j $@ $?

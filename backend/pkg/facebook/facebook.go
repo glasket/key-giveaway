@@ -80,6 +80,7 @@ func (r exchangeTokenResponse) MarshalZerologObject(e *zerolog.Event) {
 		e.Object("error", r.Error)
 	}
 	// Don't log token info
+	e.Str("token", "*****")
 }
 
 func (r exchangeTokenResponse) error() *fbError {
@@ -128,6 +129,9 @@ func (r friendResponse) error() *fbError {
 }
 
 func (c Client) Friends(firstId string, secondId string) (bool, error) {
+	if firstId == secondId {
+		return true, nil
+	}
 	url := fmt.Sprintf(friend_url, firstId, secondId)
 	var respBody friendResponse
 	err := c.invoke(url, &respBody)
