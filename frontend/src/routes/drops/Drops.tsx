@@ -1,3 +1,3 @@
-const Drops = () => <div></div>;
+const Drops = () => <div>DROPS</div>;
 
 export { Drops };

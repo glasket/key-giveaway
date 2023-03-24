@@ -1,56 +1,67 @@
-import { useEffect, useState } from 'react';
+import { request } from '../../util/msgr';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { API } from '../../api/api';
-import { FacebookLoginResponse } from '../../Responses';
+import { FacebookLoginResponse, LoginResponse } from '../../Responses';
+import { FB_REG_KEY, STORAGE_KEY } from '../../util/consts';
+import { UserContext, UserData } from '../../context/UserContext';
+import { FacebookSDK } from '../../util/facebook.types';
+import { pipe, flow } from 'fp-ts/lib/function';
+import { asTypeC } from '../../util/as';
+import { FacebookApi } from '../../util/facebook';
+import { keys } from '../../../transformers/ts-transformer-keys';
 
-declare global {
-  interface Window {
-    FB: any;
-  }
-}
+import * as E from 'fp-ts/lib/Either';
+import * as T from 'fp-ts/lib/Task';
+import * as TE from 'fp-ts/lib/TaskEither';
+import * as TO from 'fp-ts/lib/TaskOption';
 
-type Properties = {};
+type FacebookButtonProperties = {
+  setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
+};
 
-const FacebookButton = () => {
-  const [loaded, setLoaded] = useState(false);
+const FacebookButton = ({ setUserData }: FacebookButtonProperties) => {
+  const [loginFunc, setLoginFunc] = useState<(() => void) | undefined>();
 
-  useEffect(() => {
-    document.getElementById('fb-sdk-script')?.addEventListener('load', () => {
-      setLoaded(true);
-      console.log('loaded');
-    });
+  const waitForFBSDK = useCallback(async () => {
+    pipe(
+      await request(FB_REG_KEY),
+      asTypeC<FacebookApi>(keys<FacebookApi>()),
+      E.fromOption(() => 'facebook sdk failed to load'),
+      E.match(
+        (err) => console.error(err),
+        (fb) =>
+          setLoginFunc(() =>
+            pipe(
+              fb.Login(),
+              TE.match((e) => alert(e.message), flow(setUserData))
+            )
+          )
+      )
+    );
   }, []);
 
-  const loginFunc = () => {
-    window.FB.login((resp: FacebookLoginResponse) => {
-      console.log(resp);
-      if (resp.authResponse !== undefined) {
-        API.Login({ token: resp.authResponse.accessToken }).then((resp) => {
-          console.log(resp);
-        });
-
-        window.FB.api('/me', (resp: any) => {
-          console.log(resp);
-        });
-      }
-    });
-  };
+  useEffect(() => {
+    waitForFBSDK();
+  }, [waitForFBSDK]);
 
   return (
-    <>
-      <button disabled={!loaded} onClick={loginFunc}>
-        Login with Facebook
-      </button>
-      <button disabled={true} onClick={loginFunc}>
-        Login with Facebook
-      </button>
-    </>
+    <button disabled={loginFunc === undefined} onClick={loginFunc}>
+      Login with Facebook
+    </button>
   );
 };
 
-const Identity = (props: Properties) => (
-  <div>
-    <FacebookButton />
-  </div>
-);
+const Identity = () => {
+  const [userData, setUserData] = useContext(UserContext);
+  return (
+    <div>
+      {userData !== null ? (
+        <>{userData.name}</>
+      ) : (
+        <FacebookButton setUserData={setUserData} />
+      )}
+    </div>
+  );
+};
 
 export { Identity };

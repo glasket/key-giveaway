@@ -1,5 +1,6 @@
 import { json, redirect } from 'react-router-dom';
 import { isLoginResponse, LoginRequest, LoginResponse } from '../Responses';
+import { STORAGE_KEY } from '../util/consts';
 
 let fetchProps: RequestInit = {
   headers: {
@@ -36,7 +37,7 @@ type InvocationParams = {
   method: 'POST' | 'GET' | 'DELETE';
 };
 
-const invoke = () => {};
+const invoke = () => { };
 
 export const API = {
   Login: async (req: LoginRequest): Promise<LoginResponse> => {
@@ -50,10 +51,12 @@ export const API = {
     });
     console.log(resp);
     const respBody = await resp.json();
+    console.log(respBody);
     if (isLoginResponse(respBody)) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(respBody));
       return respBody;
     } else {
-      throw Error();
+      throw new Error('Something went wrong with Login');
     }
   },
 };

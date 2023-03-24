@@ -1,14 +1,9 @@
 import { Drop, Item } from './Models';
+import { FacebookToken } from './util/facebook.types';
 
 type ItemKey = {
   drop_id: string;
   item_id: string;
-};
-
-type FacebookToken = {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
 };
 
 export type AddRaffleEntryRequest = ItemKey;
