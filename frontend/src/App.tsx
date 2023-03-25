@@ -1,9 +1,7 @@
-import 'react';
 import { useCallback, useContext, useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { keys } from '../transformers/ts-transformer-keys';
 import {
-  isUserData,
   UserContext,
   UserData,
   USER_REGISTRY_KEY,
@@ -47,6 +45,7 @@ const App = ({ nav }: Properties) => {
     <>
       <UserContext.Provider value={[user, setUser]}>
         {nav}
+        <button>A</button>
         <Outlet />
       </UserContext.Provider>
     </>

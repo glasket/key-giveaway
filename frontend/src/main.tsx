@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { App } from './App';
 import { Nav } from './components/nav/Nav';
-import { UserContext, USER_REGISTRY_KEY } from './context/UserContext';
+import { USER_REGISTRY_KEY } from './context/UserContext';
 import { ErrorPage } from './ErrorPage';
 import './index.css';
 import { Drop } from './routes/drop/Drop';
