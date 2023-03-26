@@ -51,10 +51,14 @@ const FacebookButton = ({ setUserData }: FacebookButtonProperties) => {
   );
 };
 
-const Identity = () => {
+type IdentityProps = {
+  className: string | undefined;
+};
+
+const Identity = ({ className }: IdentityProps) => {
   const [userData, setUserData] = useContext(UserContext);
   return (
-    <div>
+    <div className={className}>
       {userData !== null ? (
         <>{userData.name}</>
       ) : (

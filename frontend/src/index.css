@@ -1,19 +1,51 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900');
 
 :root {
+  /* Palette (https://lospec.com/palette-list/pola5) */
+  --darkest: #070810;
+  --darker: #18284a;
+  --normal: #52a5de;
+  --lighter: #acd6f6;
+  --lightest: #ebf9ff;
+
+  /* Placement vars */
+  --bg-dark: var(--darkest);
+  --bg-light: var(--lightest);
+  --text-dark: var(--lightest);
+  --text-light: var(--darkest);
+
+  font-size: 62.5%;
   font-family: 'Montserrat', system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--text-dark);
+  background-color: var(--bg-dark);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+
+  @media (prefers-color-scheme: light) {
+    &:not(.dark) {
+      --darkest: #ebf9ff;
+      --darker: #acd6f6;
+      --normal: #52a5de;
+      --lighter: #18284a;
+      --lightest: #070810;
+    }
+  }
+
+  &.light {
+    --darkest: #ebf9ff;
+    --darker: #acd6f6;
+    --normal: #52a5de;
+    --lighter: #18284a;
+    --lightest: #070810;
+  }
 }
 
 a {
@@ -28,9 +60,9 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  font-size: 1.6rem;
 }
 
 h1 {
@@ -63,15 +95,9 @@ button {
   }
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+#root {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }

@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Identity } from '../ident/Identity';
+import styles from './Nav.module.css';
 
 type Properties = {};
 
@@ -13,9 +14,14 @@ const Nav = () => {
   const returnHome = () => navigate('/');
 
   return (
-    <nav>
-      {isRoot || <button onClick={returnHome}>&#x2B60;</button>}
-      <Identity />
+    <nav className={styles['nav']}>
+      {isRoot || (
+        <button className={styles['back']} onClick={returnHome}>
+          &#x2B60;
+        </button>
+      )}
+      <div className={styles['logo']}>LOGO</div>
+      <Identity className={styles['identity']} />
     </nav>
   );
 };

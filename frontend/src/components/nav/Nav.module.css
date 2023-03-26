@@ -1,0 +1,22 @@
+.nav {
+  width: 100%;
+  display: grid;
+  justify-content: space-between;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  background-color: var(--darker);
+}
+
+.back {
+  grid-column: 1;
+  justify-self: left;
+}
+.logo {
+  grid-column: 2;
+  justify-self: center;
+}
+.identity {
+  grid-column: 3;
+  justify-self: right;
+}

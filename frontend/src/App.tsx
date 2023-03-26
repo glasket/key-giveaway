@@ -8,6 +8,7 @@ import {
 } from './context/UserContext';
 import { asType } from './util/as';
 import { request } from './util/msgr';
+import styles from './App.module.css';
 
 import * as O from 'fp-ts/lib/Option';
 import { pipe } from 'fp-ts/lib/function';
@@ -46,7 +47,9 @@ const App = ({ nav }: Properties) => {
       <UserContext.Provider value={[user, setUser]}>
         {nav}
         <button>A</button>
-        <Outlet />
+        <div className={styles['content']}>
+          <Outlet />
+        </div>
       </UserContext.Provider>
     </>
   ) : (
