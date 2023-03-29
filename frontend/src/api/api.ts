@@ -59,4 +59,14 @@ export const API = {
       throw new Error('Something went wrong with Login');
     }
   },
+  Logout: async (): Promise<boolean> => {
+    const resp = await fetch(`${url}/logout`, {
+      method: 'POST',
+    });
+    if (resp.status !== 200) {
+      console.error(resp.statusText);
+      return false;
+    }
+    return true;
+  }
 };

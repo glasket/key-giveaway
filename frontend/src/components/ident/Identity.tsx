@@ -53,14 +53,14 @@ type IdentityProps = {
   className?: string;
 };
 
-const Identity = ({ className }: IdentityProps) => {
+export const Identity = ({ className }: IdentityProps) => {
   const [userData, setUserData] = useContext(UserContext);
   const [dropOpen, setDropOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const closeDropHandler = useCallback(
     (e: MouseEvent) => {
-      if (dropOpen && ref.current && !ref.current.contains(e.target))
+      if (dropOpen && ref.current && !ref.current.contains(e.target as Node))
         setDropOpen(false);
     },
     [dropOpen]
@@ -70,6 +70,22 @@ const Identity = ({ className }: IdentityProps) => {
     window.addEventListener('click', closeDropHandler);
     return () => window.removeEventListener('click', closeDropHandler);
   }, [closeDropHandler]);
+
+  const logoutHandler = useCallback(async () => {
+    pipe(
+      await request(FB_REG_KEY),
+      asTypeC<FacebookApi>(keys<FacebookApi>()),
+      E.fromOption(() => 'facebook sdk failed to load'),
+      E.match(
+        (err) => console.error(err),
+        async (fb) => {
+          if (await fb.Logout()) {
+            setUserData(null);
+          }
+        }
+      )
+    );
+  }, []);
 
   return (
     <>
@@ -84,8 +100,9 @@ const Identity = ({ className }: IdentityProps) => {
             <img className="round" src={userData.picture} />
           </button>
           <div className={styles['dropdown']} hidden={!dropOpen}>
-            {/*// TODO onClick logout */}
-            <button className="link">Logout</button>
+            <button onClick={logoutHandler} className="link">
+              Logout
+            </button>
           </div>
         </div>
       ) : (
@@ -94,5 +111,3 @@ const Identity = ({ className }: IdentityProps) => {
     </>
   );
 };
-
-export { Identity };

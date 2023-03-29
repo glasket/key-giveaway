@@ -114,6 +114,16 @@ export class FacebookApi {
     );
   };
 
+  async Logout(): Promise<boolean> {
+    if (await API.Logout()) {
+      this.#fb.logout(() => { });
+      localStorage.removeItem(STORAGE_KEY);
+      return true;
+    }
+    console.error('logout failed');
+    return false;
+  }
+
   Me(): TE.TaskEither<Error, FacebookMeResponse> {
     return pipe(this.token,
       O.match(
