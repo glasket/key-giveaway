@@ -1,0 +1,21 @@
+.fb-prof-btn {
+  height: calc(var(--nav-height));
+}
+
+.fb-prof-btn img {
+  height: 100%;
+  border: 3px solid var(--normal);
+}
+
+.dropdown {
+  --hpad: 0.6rem;
+  --wpad: 0.8rem;
+
+  position: absolute;
+  top: calc(var(--nav-height) + var(--nav-height-padding) + 0.4rem);
+  right: calc(0rem - var(--nav-width-padding) + 0.4rem);
+  padding: var(--hpad) var(--wpad);
+
+  background-color: var(--darker);
+  color: var(--lightest);
+}

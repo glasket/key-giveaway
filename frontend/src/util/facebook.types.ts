@@ -58,4 +58,12 @@ export type FacebookSDK = {
 export type FacebookMeResponse = {
   name: string;
   id: string;
+  picture: {
+    data: {
+      height: number,
+      is_silhouette: boolean,
+      url: string,
+      width: number;
+    };
+  };
 };

@@ -33,7 +33,6 @@ const App = ({ nav }: Properties) => {
         userData,
         O.map((x) => setUser(x))
       );
-      console.log(user);
     }
     setLoaded(true);
   }, []);
@@ -46,7 +45,6 @@ const App = ({ nav }: Properties) => {
     <>
       <UserContext.Provider value={[user, setUser]}>
         {nav}
-        <button>A</button>
         <div className={styles['content']}>
           <Outlet />
         </div>

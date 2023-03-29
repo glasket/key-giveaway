@@ -2,17 +2,25 @@
 
 :root {
   /* Palette (https://lospec.com/palette-list/pola5) */
-  --darkest: #070810;
-  --darker: #18284a;
-  --normal: #52a5de;
-  --lighter: #acd6f6;
-  --lightest: #ebf9ff;
+  --midnight: #070810;
+  --navy: #18284a;
+  --sky-blue: #52a5de;
+  --baby-blue: #acd6f6;
+  --off-white: #ebf9ff;
+
+  --darkest: var(--midnight);
+  --darker: var(--navy);
+  --normal: var(--sky-blue);
+  --lighter: var(--baby-blue);
+  --lightest: var(--off-white);
 
   /* Placement vars */
-  --bg-dark: var(--darkest);
-  --bg-light: var(--lightest);
-  --text-dark: var(--lightest);
-  --text-light: var(--darkest);
+  --bg: var(--darkest);
+  --text: var(--lightest);
+
+  --nav-height: 4rem;
+  --nav-height-padding: 0.8rem;
+  --nav-width-padding: 1.2rem;
 
   font-size: 62.5%;
   font-family: 'Montserrat', system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -20,8 +28,9 @@
   font-weight: 400;
 
   color-scheme: light dark;
-  color: var(--text-dark);
-  background-color: var(--bg-dark);
+  color: var(--text);
+  background-color: var(--bg);
+  box-sizing: border-box;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -31,20 +40,20 @@
 
   @media (prefers-color-scheme: light) {
     &:not(.dark) {
-      --darkest: #ebf9ff;
-      --darker: #acd6f6;
-      --normal: #52a5de;
-      --lighter: #18284a;
-      --lightest: #070810;
+      --darkest: var(--off-white);
+      --darker: var(--baby-blue);
+      --normal: var(--sky-blue);
+      --lighter: var(--navy);
+      --lightest: var(--midnight);
     }
   }
 
   &.light {
-    --darkest: #ebf9ff;
-    --darker: #acd6f6;
-    --normal: #52a5de;
-    --lighter: #18284a;
-    --lightest: #070810;
+    --darkest: var(--off-white);
+    --darker: var(--baby-blue);
+    --normal: var(--sky-blue);
+    --lighter: var(--navy);
+    --lightest: var(--midnight);
   }
 }
 
@@ -60,7 +69,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  min-width: 320px;
+  width: 100%;
   min-height: 100vh;
   font-size: 1.6rem;
 }
@@ -71,33 +80,60 @@ h1 {
 }
 
 button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 8px;
   border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  font-size: 1.8rem;
+  background-color: var(--normal);
+  color: var(--midnight);
   cursor: pointer;
-  transition: border-color 0.25s;
+
+  padding-inline: unset;
+  padding-block: unset;
 
   &:hover {
-    border-color: #646cff;
+    filter: brightness(1.2);
   }
+
   &:focus,
   &:focus-visible {
     outline: 4px auto -webkit-focus-ring-color;
   }
+
   &:disabled {
     border: none;
     cursor: default;
     pointer-events: none;
   }
+
+  &.link {
+    border-radius: unset;
+    border: unset;
+    background-color: transparent;
+    color: var(--normal);
+  }
+}
+
+img {
+  display: block;
 }
 
 #root {
   width: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
+}
+
+.round {
+  border-radius: 50%;
+  aspect-ratio: 1;
+}
+
+.transparent {
+  background-color: inherit;
 }

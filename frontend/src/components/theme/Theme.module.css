@@ -1,0 +1,10 @@
+.button {
+  height: calc(var(--nav-height) - 0.4rem);
+  padding: 0.3rem;
+}
+
+.button img {
+  aspect-ratio: 1;
+  height: 100%;
+  color: var(--text);
+}

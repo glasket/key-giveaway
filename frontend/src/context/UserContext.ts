@@ -5,6 +5,7 @@ export type UserData = {
   token: FacebookToken;
   name: string;
   isFriends: boolean;
+  picture: string;
 };
 
 export const isUserData = (obj: any): obj is UserData => {

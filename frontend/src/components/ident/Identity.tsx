@@ -1,14 +1,12 @@
 import { request } from '../../util/msgr';
-import { useCallback, useContext, useEffect, useState } from 'react';
-import { API } from '../../api/api';
-import { FacebookLoginResponse, LoginResponse } from '../../Responses';
-import { FB_REG_KEY, STORAGE_KEY } from '../../util/consts';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { FB_REG_KEY } from '../../util/consts';
 import { UserContext, UserData } from '../../context/UserContext';
-import { FacebookSDK } from '../../util/facebook.types';
 import { pipe, flow } from 'fp-ts/lib/function';
 import { asTypeC } from '../../util/as';
 import { FacebookApi } from '../../util/facebook';
 import { keys } from '../../../transformers/ts-transformer-keys';
+import styles from './Identity.module.css';
 
 import * as E from 'fp-ts/lib/Either';
 import * as T from 'fp-ts/lib/Task';
@@ -52,19 +50,48 @@ const FacebookButton = ({ setUserData }: FacebookButtonProperties) => {
 };
 
 type IdentityProps = {
-  className: string | undefined;
+  className?: string;
 };
 
 const Identity = ({ className }: IdentityProps) => {
   const [userData, setUserData] = useContext(UserContext);
+  const [dropOpen, setDropOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const closeDropHandler = useCallback(
+    (e: MouseEvent) => {
+      if (dropOpen && ref.current && !ref.current.contains(e.target))
+        setDropOpen(false);
+    },
+    [dropOpen]
+  );
+
+  useEffect(() => {
+    window.addEventListener('click', closeDropHandler);
+    return () => window.removeEventListener('click', closeDropHandler);
+  }, [closeDropHandler]);
+
   return (
-    <div className={className}>
+    <>
       {userData !== null ? (
-        <>{userData.name}</>
+        <div ref={ref}>
+          <button
+            className={['round transparent', styles['fb-prof-btn']]
+              .join(' ')
+              .trim()}
+            onClick={() => setDropOpen(!dropOpen)}
+          >
+            <img className="round" src={userData.picture} />
+          </button>
+          <div className={styles['dropdown']} hidden={!dropOpen}>
+            {/*// TODO onClick logout */}
+            <button className="link">Logout</button>
+          </div>
+        </div>
       ) : (
         <FacebookButton setUserData={setUserData} />
       )}
-    </div>
+    </>
   );
 };
 

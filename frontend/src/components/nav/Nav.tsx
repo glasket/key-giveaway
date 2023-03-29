@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Identity } from '../ident/Identity';
+import { ThemeButton } from '../theme/Theme';
 import styles from './Nav.module.css';
 
 type Properties = {};
@@ -21,7 +22,10 @@ const Nav = () => {
         </button>
       )}
       <div className={styles['logo']}>LOGO</div>
-      <Identity className={styles['identity']} />
+      <div className={styles['identity']}>
+        <ThemeButton />
+        <Identity />
+      </div>
     </nav>
   );
 };

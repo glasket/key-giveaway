@@ -1,9 +1,14 @@
 .nav {
-  width: 100%;
-  display: grid;
-  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
 
-  grid-template-columns: repeat(3, 1fr);
+  padding: var(--nav-height-padding) var(--nav-width-padding);
+  align-items: stretch;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  height: var(--nav-height);
 
   background-color: var(--darker);
 }
@@ -18,5 +23,10 @@
 }
 .identity {
   grid-column: 3;
-  justify-self: right;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 0.8rem;
+  justify-content: right;
+  position: relative;
 }
