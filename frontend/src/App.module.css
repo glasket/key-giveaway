@@ -6,6 +6,6 @@
   max-width: max(66vw, 1080px);
   width: 100%;
   margin: 0 auto;
-  margin-top: calc(var(--nav-height));
+  margin-top: calc(var(--nav-height) + 2 * var(--nav-height-padding));
   padding: 0.8rem 0;
 }
