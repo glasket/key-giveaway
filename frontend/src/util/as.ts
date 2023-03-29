@@ -3,7 +3,7 @@ import * as O from 'fp-ts/lib/Option';
 import * as B from 'fp-ts/lib/boolean';
 
 export const isObject = (obj: unknown): obj is object =>
-  typeof obj === 'object';
+  typeof obj === 'object' && obj !== null;
 
 export const isType = <T extends object>(
   obj: unknown,
