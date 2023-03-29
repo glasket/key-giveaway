@@ -47,17 +47,18 @@ export class FacebookApi {
           pipe(
             O.tryCatch(() => getStoredItem(STORAGE_KEY)),
             O.flatten,
-            O.chain(
+            O.fold(
+              () => O.none,
               flow(
                 J.parse,
                 E.match(
-                  () => O.none,
+                  () => pipe(STORAGE_KEY, (k) => localStorage.removeItem(k), () => O.none),
                   (obj) => asType<LoginResponse>(obj, keys<LoginResponse>())
                 )
               )
             ),
-            O.match(
-              () => pipe(STORAGE_KEY, localStorage.removeItem, () => TO.none),
+            O.fold(
+              () => TO.none,
               (logResp) => {
                 this.token = O.some(logResp.token.access_token);
                 return pipe(
