@@ -32,11 +32,13 @@ func main() {
 
 	var awsProfile, infile, raffleArn, raffleRoleArn string
 	var verbose int
+	var noSched bool
 	flag.StringVar(&awsProfile, "profile", "", "AWS Profile to be used")
 	flag.StringVar(&infile, "file", "", "The path to the input file")
 	flag.IntVar(&verbose, "v", 0, "Verbosity, 0=Warn (Default), 1=Info, 2=Debug")
 	flag.StringVar(&raffleArn, "arn", "", "The ARN for the HandleRaffle lambda")
 	flag.StringVar(&raffleRoleArn, "role", "", "The Role ARN for the HandleRaffle lambda")
+	flag.BoolVar(&noSched, "no_sched", false, "Disables the schedule creation (for local testing)")
 	flag.Parse()
 
 	switch verbose {
@@ -118,6 +120,9 @@ func main() {
 			if err := drop.Save(); err != nil {
 				log.Error().Err(err).Msg("")
 				break
+			}
+			if noSched {
+				continue
 			}
 			// Event Bridge
 			input, err := json.Marshal(fw.HandleRaffleRequest{DropID: drop.ID})
