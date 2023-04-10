@@ -4,9 +4,13 @@ Description: Backend API for game key giveaway site
 
 Globals:
   Function:
+    Timeout: 20
     Runtime: go1.x
     Architectures:
       - x86_64
+    Environment:
+      Variables:
+        ENDPOINT_OVERRIDE: ''
 
 Parameters:
   FacebookApiSecret:

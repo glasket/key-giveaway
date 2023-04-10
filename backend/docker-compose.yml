@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  dynamodb-local:
+    image: 'amazon/dynamodb-local'
+    command: '-jar DynamoDBLocal.jar -sharedDb -dbPath ./data -cors "*"'
+    container_name: dynamodb
+    hostname: dynamodb
+    ports:
+      - 8000:8000
+    volumes:
+      - ./dynamo:/home/dynamodblocal/data:Z
+    working_dir: /home/dynamodblocal
+    networks:
+      - kga_net
+
+networks:
+  kga_net:
+    external:
+      name: kga_net

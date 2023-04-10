@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-sam local start-api -n .env --parameter-overrides "AllowedOrigin=https://localhost:8080"
+sam local start-api --env-vars sam-vars.json --parameter-overrides "AllowedOrigin=https://localhost:8080" --warm-containers LAZY --docker-network kga_net --profile legacy
