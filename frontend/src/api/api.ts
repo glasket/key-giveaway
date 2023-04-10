@@ -1,6 +1,7 @@
-import { json, redirect } from 'react-router-dom';
 import { isLoginResponse, LoginRequest, LoginResponse } from '../Responses';
 import { STORAGE_KEY } from '../util/consts';
+
+import { Drop, dropFromJson, Json } from '../Models';
 
 let fetchProps: RequestInit = {
   headers: {
@@ -62,11 +63,29 @@ export const API = {
   Logout: async (): Promise<boolean> => {
     const resp = await fetch(`${url}/logout`, {
       method: 'POST',
+      ...fetchProps
     });
     if (resp.status !== 200) {
       console.error(resp.statusText);
       return false;
     }
     return true;
+  },
+  GetDrops: async (old: boolean): Promise<Array<Drop>> => {
+    const resp = await fetch(`${url}/drops?old=${old}`, {
+      ...fetchProps
+    });
+    if (resp.status !== 200) {
+      console.error(resp.statusText);
+      throw new Error(resp.statusText);
+    }
+    const maybeDrops = await resp.json();
+    if (maybeDrops == null) {
+      return [];
+    }
+    if (!(maybeDrops instanceof Array)) {
+      throw new Error("GetDrops didn't return Array or null");
+    }
+    return (maybeDrops as Array<Json<Drop>>).map(v => dropFromJson(v)).sort((a, b) => b.ends_at.getTime() - a.ends_at.getTime());
   }
 };

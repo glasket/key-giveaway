@@ -1,0 +1,87 @@
+import React, { useEffect, useRef, useState } from 'react';
+
+type TimerProps = {
+  end: Date;
+};
+
+const secInMs = 1000;
+const minInMs = secInMs * 60;
+const hourInMs = minInMs * 60;
+const dayInMs = hourInMs * 24;
+
+const secondsMax = 59;
+const minutesMax = 59;
+const hoursMax = 23;
+
+export const Timer = ({ end }: TimerProps) => {
+  const timeInMs = useRef(end.getTime() - Date.now());
+  const [expired, setExpired] = useState(timeInMs.current < 0);
+  const [timeRemaining, setTimeRemaining] = useState({
+    days: Math.floor(timeInMs.current / dayInMs),
+    hours: Math.floor((timeInMs.current % dayInMs) / hourInMs),
+    minutes: Math.floor(((timeInMs.current % dayInMs) % hourInMs) / minInMs),
+    seconds: Math.floor(
+      (((timeInMs.current % dayInMs) % hourInMs) % minInMs) / secInMs
+    ),
+  });
+
+  const { days, hours, minutes, seconds } = timeRemaining;
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimeRemaining(({ days, hours, minutes, seconds }) => {
+        seconds -= 1;
+        if (seconds >= 0) {
+          return { days, hours, minutes, seconds };
+        }
+        seconds = secondsMax;
+        minutes -= 1;
+        if (minutes >= 0) {
+          return { days, hours, minutes, seconds };
+        }
+        minutes = minutesMax;
+        hours -= 1;
+        if (hours >= 0) {
+          return { days, hours, minutes, seconds };
+        }
+        hours = hoursMax;
+        days -= 1;
+        if (days >= 0) {
+          return { days, hours, minutes, seconds };
+        }
+        setExpired(true);
+        clearInterval(interval);
+        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
+      });
+    }, secInMs);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  let components = [
+    <React.Fragment key="day">
+      {days === 1 ? `${days} day ` : `${days} days `}
+    </React.Fragment>,
+    <React.Fragment key="hour">
+      {hours === 1 ? `${hours} hour ` : `${hours} hours `}
+    </React.Fragment>,
+    <React.Fragment key="minute">
+      {minutes === 1 ? `${minutes} minute ` : `${minutes} minutes `}
+    </React.Fragment>,
+    <React.Fragment key="second">
+      {seconds === 1 ? `${seconds} second` : `${seconds} seconds`}
+    </React.Fragment>,
+  ];
+
+  if (days === 0) {
+    components.shift();
+    if (hours === 0) {
+      components.shift();
+      if (minutes === 0) {
+        components.shift();
+      }
+    }
+  }
+
+  return expired ? <h3>Expired</h3> : <div>{components}</div>;
+};
