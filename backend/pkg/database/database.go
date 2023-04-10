@@ -2,9 +2,11 @@ package database
 
 import (
 	"context"
+	"os"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -19,7 +21,15 @@ var (
 )
 
 func Init(cfg aws.Config) {
-	db = dynamodb.NewFromConfig(cfg)
+	endpoint := os.Getenv("ENDPOINT_OVERRIDE")
+	var resolver dynamodb.EndpointResolver
+	if endpoint == "" {
+		resolver = dynamodb.NewDefaultEndpointResolver()
+	} else {
+		resolver = dynamodb.EndpointResolverFromURL(endpoint)
+	}
+	log.Info().Str("endpoint", endpoint).Msg("")
+	db = dynamodb.NewFromConfig(cfg, dynamodb.WithEndpointResolver(resolver))
 }
 
 func SetContext(c context.Context) {
