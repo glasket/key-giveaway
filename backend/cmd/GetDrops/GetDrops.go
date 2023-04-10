@@ -5,11 +5,13 @@ import (
 	"encoding/json"
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/fw"
-	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/rs/zerolog/log"
 )
 
 func init() {
@@ -20,6 +22,15 @@ func init() {
 	database.Init(cfg)
 }
 
+type cachedResp struct {
+	Resp   []byte
+	Expiry time.Time
+}
+
+const cacheTTL time.Duration = time.Hour
+
+var cache map[bool]*cachedResp = make(map[bool]*cachedResp)
+
 func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	_, writer, err := fw.StartNoSession(ctx, req)
 	if err != nil {
@@ -29,6 +40,13 @@ func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.A
 	if err != nil {
 		includeOld = false
 	}
+
+	cacheVal := cache[includeOld]
+	if cacheVal != nil && cacheVal.Expiry.After(time.Now()) {
+		log.Info().Msg("using cache")
+		return fw.Ok(writer, cacheVal.Resp)
+	}
+
 	database.SetContext(ctx)
 
 	var drops []database.Drop
@@ -42,9 +60,8 @@ func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.A
 		return fw.Error(err)
 	}
 
-	writer.WriteHeader(http.StatusOK)
-	writer.Write(resp)
-	return writer.GetProxyResponse()
+	cache[includeOld] = &cachedResp{Resp: resp, Expiry: time.Now().Add(cacheTTL)}
+	return fw.Ok(writer, resp)
 }
 
 func main() {

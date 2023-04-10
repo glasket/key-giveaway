@@ -86,6 +86,12 @@ func StartNoSession(ctx context.Context, req events.APIGatewayV2HTTPRequest) (*h
 	return r, w, nil
 }
 
+func Ok(w *core.ProxyResponseWriterV2, resp []byte) (events.APIGatewayV2HTTPResponse, error) {
+	w.WriteHeader(http.StatusOK)
+	w.Write(resp)
+	return w.GetProxyResponse()
+}
+
 func NotFriends(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse, error) {
 	w.WriteHeader(http.StatusUnauthorized)
 	resp, err := json.Marshal(ErrorResponse{Reason: "not friends"})
