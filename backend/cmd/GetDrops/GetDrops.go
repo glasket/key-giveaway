@@ -25,10 +25,14 @@ func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.A
 	if err != nil {
 		return fw.Error(err)
 	}
+	includeOld, err := strconv.ParseBool(req.QueryStringParameters["old"])
+	if err != nil {
+		includeOld = false
+	}
 	database.SetContext(ctx)
 
 	var drops []database.Drop
-	drops, err = database.GetAllDrops()
+	drops, err = database.GetAllDrops(includeOld)
 	if err != nil {
 		return fw.Error(err)
 	}

@@ -150,17 +150,20 @@ func (d Drop) GetItems() (Drop, error) {
 	return d, nil
 }
 
-func GetAllDrops() ([]Drop, error) {
+func GetAllDrops(includeOld bool) ([]Drop, error) {
+	filter := expression.And(
+		expression.BeginsWith(expression.Name("PK"), string(dropEntityTag)),
+		expression.BeginsWith(expression.Name("SK"), string(dropEntityTag)),
+	)
+	if !includeOld {
+		filter = expression.And(
+			filter,
+			expression.GreaterThan(expression.Name("End"), expression.Value(time.Now().UTC().String())),
+		)
+	}
 	expr, err := expression.
 		NewBuilder().
-		WithFilter(expression.
-			And(
-				expression.And(
-					expression.BeginsWith(expression.Name("PK"), string(dropEntityTag)),
-					expression.BeginsWith(expression.Name("SK"), string(dropEntityTag)),
-				),
-				expression.GreaterThan(expression.Name("End"), expression.Value(time.Now().UTC().String())),
-			)).
+		WithFilter(filter).
 		Build()
 	if err != nil {
 		return nil, err
