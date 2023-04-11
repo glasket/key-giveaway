@@ -20,10 +20,6 @@ func init() {
 	database.Init(cfg)
 }
 
-type request struct {
-	DropID string `json:"drop_id"`
-}
-
 func GetDropItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
 	_, writer, err := fw.StartNoSession(ctx, req)
 	if err != nil {
@@ -31,14 +27,13 @@ func GetDropItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (even
 	}
 	database.SetContext(ctx)
 
-	var reqJson request
-	err = json.Unmarshal([]byte(req.Body), &reqJson)
-	if err != nil {
+	dropId, ok := req.PathParameters["drop_id"]
+	if !ok {
 		return fw.BadRequest(writer)
 	}
 
 	drop := database.Drop{
-		ID: reqJson.DropID,
+		ID: dropId,
 	}
 	drop, err = drop.GetItems()
 	if err != nil {

@@ -207,8 +207,8 @@ Resources:
           Type: HttpApi
           Properties:
             ApiId: !Ref BackendApi
-            Path: /api/drop
-            Method: POST
+            Path: /api/drop/{drop_id}
+            Method: GET
 
   GetDropItemsConnector:
     Type: AWS::Serverless::Connector
