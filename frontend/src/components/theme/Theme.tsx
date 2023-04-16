@@ -4,6 +4,8 @@ import styles from './Theme.module.css';
 import * as O from 'fp-ts/lib/Option';
 import { getBrightness } from '../../util/HSP';
 import { pipe } from 'fp-ts/lib/function';
+import sun from '../../assets/sun.svg';
+import moon from '../../assets/moon.svg';
 
 type Theme = 'dark' | 'light';
 
@@ -12,14 +14,21 @@ const themes: Theme[] = ['dark', 'light'];
 type ThemeSetting = Theme | 'system';
 
 const symbols: Record<Theme, string> = {
-  dark: '/moon.svg',
-  light: '/sun.svg',
+  dark: moon,
+  light: sun,
 };
 
 export const ThemeButton = () => {
   const [theme, setTheme] = useState<ThemeSetting>('system');
   const [symbol, setSymbol] = useState<string | null>(null);
   const queries = useRef<O.Option<MediaQueryList[]>>(O.none);
+
+  useEffect(() => {
+    if (theme === 'system') {
+      return;
+    }
+    setSymbol(symbols[theme]);
+  }, [theme]);
 
   const addMediaListeners = () => {
     if (O.isSome(queries.current)) {
@@ -94,10 +103,9 @@ export const ThemeButton = () => {
         removeEventListeners();
       }
       document.documentElement.className = newTheme;
-      setSymbol(symbols[newTheme]);
       // TODO Write to localStorage
     }
-    setTheme(theme);
+    setTheme(newTheme);
   };
 
   useEffect(() => {
@@ -112,11 +120,9 @@ export const ThemeButton = () => {
   }, []);
 
   const clickHandler = useCallback(() => {
-    console.log(theme);
-    console.log(symbol);
     switch (theme) {
       case 'system':
-        if (symbol === '/moon.svg') {
+        if (symbol === symbols['dark']) {
           changeTheme('light');
           break;
         }
