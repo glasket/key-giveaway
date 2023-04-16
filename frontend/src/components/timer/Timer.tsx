@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, Fragment } from 'react';
+import { pluralizer } from '../../util/pluralizer';
 
 type TimerProps = {
   end: Date;
@@ -59,18 +60,10 @@ export const Timer = ({ end }: TimerProps) => {
   }, []);
 
   let components = [
-    <React.Fragment key="day">
-      {days === 1 ? `${days} day ` : `${days} days `}
-    </React.Fragment>,
-    <React.Fragment key="hour">
-      {hours === 1 ? `${hours} hour ` : `${hours} hours `}
-    </React.Fragment>,
-    <React.Fragment key="minute">
-      {minutes === 1 ? `${minutes} minute ` : `${minutes} minutes `}
-    </React.Fragment>,
-    <React.Fragment key="second">
-      {seconds === 1 ? `${seconds} second` : `${seconds} seconds`}
-    </React.Fragment>,
+    <Fragment key="day">{pluralizer(days, 'day')}</Fragment>,
+    <Fragment key="hour">{pluralizer(hours, 'hour')}</Fragment>,
+    <Fragment key="minute">{pluralizer(minutes, 'minute')}</Fragment>,
+    <Fragment key="second">{pluralizer(seconds, 'second')}</Fragment>,
   ];
 
   if (days === 0) {
