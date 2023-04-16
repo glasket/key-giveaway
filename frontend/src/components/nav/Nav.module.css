@@ -11,6 +11,8 @@
   height: var(--nav-height);
 
   background-color: var(--darker);
+
+  z-index: 10;
 }
 
 .back {
