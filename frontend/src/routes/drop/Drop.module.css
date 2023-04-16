@@ -1,0 +1,6 @@
+.container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, var(--drop-card-width));
+  gap: 1.2rem;
+  justify-content: center;
+}

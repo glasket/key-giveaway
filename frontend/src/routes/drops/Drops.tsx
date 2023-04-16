@@ -1,7 +1,9 @@
 import { isSome } from 'fp-ts/lib/Option';
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { API } from '../../api/api';
-import { Timer } from '../../components/timer/timer';
+import { Card } from '../../components/card/Card';
+import { Timer } from '../../components/timer/Timer';
 import { Drop } from '../../Models';
 
 export const Drops = () => {
@@ -40,8 +42,12 @@ export const Drops = () => {
             <ul>
               {drops.map((drop) => (
                 <li key={drop.id}>
-                  <h3>{drop.name}</h3>
-                  <Timer end={drop.ends_at} />
+                  <Card>
+                    <h3>
+                      <Link to={`/${drop.id}`}>{drop.name}</Link>
+                    </h3>
+                    <Timer end={drop.ends_at} />
+                  </Card>
                 </li>
               ))}
             </ul>
