@@ -9,9 +9,6 @@ type ItemKey = {
 export type AddRaffleEntryRequest = ItemKey;
 export type AddRaffleEntryResponse = Item;
 
-export type GetDropItemsRequest = {
-  drop_id: string;
-};
 export type GetDropItemsResponse = Array<Item>;
 
 export type GetDropsResponse = Array<Drop>;

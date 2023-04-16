@@ -1,7 +1,7 @@
-import { isLoginResponse, LoginRequest, LoginResponse } from '../Responses';
+import { GetDropItemsResponse, GetDropsResponse, isLoginResponse, LoginRequest, LoginResponse } from '../Responses';
 import { STORAGE_KEY } from '../util/consts';
 
-import { Drop, dropFromJson, Json } from '../Models';
+import { Drop, dropFromJson, Item, itemFromJson, Json } from '../Models';
 
 let fetchProps: RequestInit = {
   headers: {
@@ -71,7 +71,7 @@ export const API = {
     }
     return true;
   },
-  GetDrops: async (old: boolean): Promise<Array<Drop>> => {
+  GetDrops: async (old: boolean): Promise<GetDropsResponse> => {
     const resp = await fetch(`${url}/drops?old=${old}`, {
       ...fetchProps
     });
@@ -87,5 +87,27 @@ export const API = {
       throw new Error("GetDrops didn't return Array or null");
     }
     return (maybeDrops as Array<Json<Drop>>).map(v => dropFromJson(v)).sort((a, b) => b.ends_at.getTime() - a.ends_at.getTime());
+  },
+  GetDropItems: async (dropId: string): Promise<GetDropItemsResponse> => {
+    const resp = await fetch(`${url}/drop/${dropId}`, {
+      ...fetchProps
+    });
+    if (resp.status !== 200) {
+      console.error(resp.statusText);
+      throw new Error(resp.statusText);
+    }
+    const maybeItems = await resp.json();
+    if (maybeItems == null) {
+      return [];
+    }
+    if (!(maybeItems instanceof Array)) {
+      throw new Error("GetDropItems didn't return an Array or null");
+    }
+    console.log(maybeItems);
+    return (maybeItems as Array<Json<Item>>).map(v => {
+      let newV = itemFromJson(v);
+      newV.items.sort((a, b) => a.name.localeCompare(b.name));
+      return newV;
+    }).sort((a, b) => a.name.localeCompare(b.name));
   }
 };
