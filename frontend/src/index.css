@@ -1,20 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900');
 @import 'reset.css';
+@import '_var.css';
+@import '_util.css';
 
 :root {
-  /* Palette (https://lospec.com/palette-list/pola5) */
-  --midnight: #070810;
-  --navy: #18284a;
-  --sky-blue: #52a5de;
-  --baby-blue: #acd6f6;
-  --off-white: #ebf9ff;
-
-  --darkest: var(--midnight);
-  --darker: var(--navy);
-  --normal: var(--sky-blue);
-  --lighter: var(--baby-blue);
-  --lightest: var(--off-white);
-
   /* Placement vars */
   --bg: var(--darkest);
   --text: var(--lightest);
@@ -62,9 +51,9 @@ a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  &:hover {
+    color: #535bf2;
+  }
 }
 
 body {
