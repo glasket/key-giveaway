@@ -116,6 +116,19 @@ func main() {
 			for idx := range drop.Items {
 				drop.Items[idx].ID = uuid.New().String()
 				drop.Items[idx].DropId = drop.ID
+				// Gather SteamSpy data
+				var tim time.Time
+				for jdx := range drop.Items[idx].Items {
+					tim = time.Now()
+					if err = drop.Items[idx].Items[jdx].GetSteamSpyData(); err != nil {
+						log.Debug().Err(err).Msg("")
+					}
+					log.Debug().Any("item", drop.Items[idx]).Send()
+					delta := time.Since(tim)
+					if delta < time.Second {
+						time.Sleep(time.Second - delta)
+					}
+				}
 			}
 			if err := drop.Save(); err != nil {
 				log.Error().Err(err).Msg("")

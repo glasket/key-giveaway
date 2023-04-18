@@ -1,6 +1,10 @@
 package database
 
 import (
+	"encoding/json"
+	"errors"
+	"math"
+	"net/http"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
@@ -224,9 +228,43 @@ func (i Item) RemoveRaffleEntry(userId string) (Item, error) {
 }
 
 type GameItem struct {
-	Name  string `json:"name"`
-	AppId string `json:"appId"` // Steam App ID
-	Key   string `json:"key"`
+	Name         string `json:"name"`
+	AppId        string `json:"appId"` // Steam App ID
+	Key          string `json:"key"`
+	ReviewScore  int16  `json:"review_score"`
+	Price        int    `json:"price"`
+	InitialPrice int    `json:"initial_price"`
+	Discount     int    `json:"discount"`
+}
+
+type steamSpyResponse struct {
+	Name         string `json:"name"`
+	Pos          int    `json:"positive"`
+	Neg          int    `json:"negative"`
+	Price        int    `json:"price,string"`
+	InitialPrice int    `json:"initialprice,string"`
+	Discount     int    `json:"discount,string"`
+}
+
+func (g *GameItem) GetSteamSpyData() error {
+	if g == nil {
+		return errors.New("*GameItem is nil")
+	}
+	resp, err := http.Get("https://steamspy.com/api.php?request=appdetails&appid=" + g.AppId)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	var ssResp steamSpyResponse
+	if json.NewDecoder(resp.Body).Decode(&ssResp); err != nil {
+		return err
+	}
+	g.Name = ssResp.Name
+	g.Price = ssResp.Price
+	g.InitialPrice = ssResp.InitialPrice
+	g.Discount = ssResp.Discount
+	g.ReviewScore = int16(math.Round(float64(ssResp.Pos) / float64(ssResp.Pos+ssResp.Neg) * 100.0))
+	return nil
 }
 
 type FBErrorMessage struct {

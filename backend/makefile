@@ -6,6 +6,8 @@ DEPLOYCMD = chmod +x $?; zip -j $@ $?
 
 .PHONY: deploy build-cli clean
 
+all: deploy build-cli
+
 deploy: $(DEPLOY)
 
 build-cli:
