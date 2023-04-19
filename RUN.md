@@ -17,6 +17,15 @@ If using SELinux, you can either use moby-engine and remove the --selinux-enable
 `sudo setenforce permissive` while using AWS SAM.  
 Hopefully this will be resolved eventually (see: aws/aws-sam-cli#2360)
 
+### CLI Tool
+
+To run the CLI tool locally, append `ENDPOINT_OVERRIDE="http://localhost:8000"` to the beginning of the command
+and use the `-no_sched` option.
+
+```bash
+ENDPOINT_OVERRIDE="http://localhost:8000" ./bin/cli/cli -no_sched -profile $AWS_PROFILE -file ./cli/example.json
+```
+
 ## Running the frontend:
 
 Inside the `frontend` directory:
