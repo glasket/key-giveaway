@@ -103,7 +103,6 @@ export const API = {
     if (!(maybeItems instanceof Array)) {
       throw new Error("GetDropItems didn't return an Array or null");
     }
-    console.log(maybeItems);
     return (maybeItems as Array<Json<Item>>).map(v => {
       let newV = itemFromJson(v);
       newV.items.sort((a, b) => a.name.localeCompare(b.name));
