@@ -60,9 +60,9 @@ export const Timer = ({ end }: TimerProps) => {
   }, []);
 
   let components = [
-    <Fragment key="day">{pluralizer(days, 'day')}</Fragment>,
-    <Fragment key="hour">{pluralizer(hours, 'hour')}</Fragment>,
-    <Fragment key="minute">{pluralizer(minutes, 'minute')}</Fragment>,
+    <Fragment key="day">{pluralizer(days, 'day')} </Fragment>,
+    <Fragment key="hour">{pluralizer(hours, 'hour')} </Fragment>,
+    <Fragment key="minute">{pluralizer(minutes, 'minute')} </Fragment>,
     <Fragment key="second">{pluralizer(seconds, 'second')}</Fragment>,
   ];
 
