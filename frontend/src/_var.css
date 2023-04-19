@@ -12,6 +12,6 @@
   --lighter: var(--baby-blue);
   --lightest: var(--off-white);
 
-  /*  */
   --drop-card-width: 29.4rem;
+  --br: 6px;
 }

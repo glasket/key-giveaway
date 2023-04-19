@@ -17,6 +17,7 @@ import * as T from 'fp-ts/lib/Task';
 import { FacebookSDK } from './util/facebook.types';
 import { pipe } from 'fp-ts/lib/function';
 import { FacebookApi } from './util/facebook';
+import ReactModal from 'react-modal';
 
 // TODO Give FB a type defining the API functions
 declare global {
@@ -96,6 +97,8 @@ window.fbAsyncInit = function () {
 
   register(FB_REG_KEY, facebookApi);
 };
+
+ReactModal.setAppElement('#root');
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>

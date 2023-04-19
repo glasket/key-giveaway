@@ -69,13 +69,21 @@ export type Game = {
   readonly name: string;
   readonly appId: string;
   readonly key: string;
+  readonly review_score: number;
+  readonly price: number;
+  readonly initial_price: number;
+  readonly discount: number;
 };
 
 export const gameFromJson = (json: Json<Game>): Game => {
   if (
     typeof json.name === 'string' &&
     typeof json.appId === 'string' &&
-    typeof json.key === 'string'
+    typeof json.key === 'string' &&
+    typeof json.review_score === 'number' &&
+    typeof json.price === 'number' &&
+    typeof json.initial_price === 'number' &&
+    typeof json.discount === 'number'
   ) {
     return json;
   }

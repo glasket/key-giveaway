@@ -1,19 +1,24 @@
 .card {
   display: grid;
-  grid-template-rows: calc(var(--drop-card-width) * 0.469) auto;
+  grid-template-rows: calc(min(var(--drop-card-width), 95vw) * 0.469) auto;
   background-color: var(--lightest);
   color: var(--darkest);
-  font-weight: 600;
-  font-size: 1.2em;
-  border-radius: 6px;
+  border-radius: var(--br);
   overflow: hidden;
 }
 
 .clickable {
   cursor: pointer;
+  transition: filter 0.3s ease;
 
-  &:hover {
+  &:hover,
+  &:focus {
     filter: brightness(1.1);
+  }
+
+  &:active {
+    filter: brightness(1);
+    transition: filter 0.1s ease;
   }
 }
 

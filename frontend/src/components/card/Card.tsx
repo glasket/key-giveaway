@@ -34,8 +34,8 @@ export const Card = ({
     >
       {hasImages && (
         <div className={styles['images']}>
-          {headerImages.map((i) => (
-            <img src={i} />
+          {headerImages.map((i, idx) => (
+            <img src={i} key={idx} />
           ))}
         </div>
       )}

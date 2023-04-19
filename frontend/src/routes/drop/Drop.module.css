@@ -1,6 +1,21 @@
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, var(--drop-card-width));
+  grid-template-columns: repeat(auto-fit, min(var(--drop-card-width), 90vw));
   gap: 1.2rem;
   justify-content: center;
+}
+
+.modal__container {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: center;
+  gap: 0.6rem;
+}
+
+/* TODO Make games layout in grid in order to flow width  */
+.modal__games {
+  width: min(90%, var(--drop-card-width));
+  height: 100%;
+  overflow-y: auto;
+  padding: 0 1.2rem;
 }

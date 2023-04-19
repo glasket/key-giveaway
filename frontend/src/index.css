@@ -68,6 +68,16 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+h2 {
+}
+h3 {
+  font-weight: 600;
+  font-size: 1.2em;
+}
+h4 {
+  font-weight: 500;
+  font-size: 1.125em;
+}
 
 button {
   display: flex;
@@ -112,18 +122,41 @@ img {
   display: block;
 }
 
+ul {
+  list-style: none;
+}
+
 #root {
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  position: relative;
 }
 
-.round {
-  border-radius: 50%;
-  aspect-ratio: 1;
+.modal {
+  display: flex;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate3d(-50%, -50%, 0);
+  border: 2px solid var(--lightest);
+  border-radius: var(--br);
+  background-color: var(--bg);
+  padding: 0.8rem 1.2rem 1.2rem;
+  width: max-content;
+  height: max-content;
+  max-width: 90vw;
+  max-height: 80vh;
+  outline: none;
 }
 
-.transparent {
-  background-color: inherit;
+.modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 20;
+  background-color: #000000aa;
 }
