@@ -91,9 +91,7 @@ button {
   background-color: var(--normal);
   color: var(--midnight);
   cursor: pointer;
-
-  padding-inline: unset;
-  padding-block: unset;
+  padding: 0.4rem 0.6rem;
 
   &:hover {
     filter: brightness(1.2);

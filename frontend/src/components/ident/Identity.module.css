@@ -1,5 +1,6 @@
 .fb-prof-btn {
   height: calc(var(--nav-height));
+  padding: unset;
 }
 
 .fb-prof-btn img {
