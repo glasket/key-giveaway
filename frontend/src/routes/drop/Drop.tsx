@@ -76,15 +76,20 @@ export const Drop = () => {
             O.fold(
               () => <></>,
               (item) => (
-                <div className={styles['modal__container']}>
+                <>
                   {/*// TODO Put grid around header for button alignment */}
-                  <h3 className="ul">{item.name}</h3>
-                  <Column
-                    Element="ul"
-                    align="center"
-                    gap="1.2rem"
-                    className={styles['modal__games']}
-                  >
+                  <div className="modal__header">
+                    <h3 className={`ul ${styles['modal__title']}`}>
+                      {item.name}
+                    </h3>
+                    <button
+                      className={styles['modal__close']}
+                      onClick={() => setModalItem(O.none)}
+                    >
+                      X
+                    </button>
+                  </div>
+                  <ul className={styles['modal__games']}>
                     {item.items.map((game, idx) => (
                       <li key={idx}>
                         <a
@@ -95,17 +100,26 @@ export const Drop = () => {
                             clickable
                             headerImages={[headerImageString(game.appId)]}
                           >
-                            <Row align="center" justify="center">
+                            <Row align="center" justify="center" gap="0.8rem">
                               {/*// TODO Add review score and price info */}
-                              <h4 className="m-auto">{game.name}</h4>
+                              <h4 className="mr-auto">{game.name}</h4>
+                              <span>
+                                {(game.price / 100).toLocaleString('en-US', {
+                                  style: 'currency',
+                                  currency: 'USD',
+                                })}
+                              </span>
+                              <span>{game.review_score}%</span>
                             </Row>
                           </Card>
                         </a>
                       </li>
                     ))}
-                  </Column>
-                  <button>Enter</button>
-                </div>
+                  </ul>
+                  <div className="modal__footer">
+                    <button>Enter</button>
+                  </div>
+                </>
               )
             )
           )}
