@@ -1,3 +1,5 @@
+const { default: autoprefixer } = require('autoprefixer');
+
 module.exports = {
   plugins: {
     'postcss-sorting': {
@@ -14,5 +16,6 @@ module.exports = {
       'unspecified-properties-position': 'bottom',
     },
     'postcss-nesting': {},
+    'autoprefixer': {},
   },
 };
