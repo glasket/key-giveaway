@@ -8,6 +8,6 @@ export const EntryCounter = ({ count }: { count: number }) => (
     title={pluralizer(count, 'entry', 'entries')}
   >
     <img src={ticketSvg} />
-    <p>{count}</p>
+    <p className="wght-500">{count}</p>
   </span>
 );

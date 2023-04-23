@@ -30,3 +30,7 @@
 .flex {
   display: flex;
 }
+
+.wght-500 {
+  font-weight: 500;
+}

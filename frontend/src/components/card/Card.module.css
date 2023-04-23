@@ -42,3 +42,26 @@
 .content {
   padding: 0.6rem;
 }
+
+.card--game > .content {
+  display: grid;
+  grid-template-rows: auto auto;
+  gap: 0.4rem;
+
+  & > *:nth-child(1) {
+    --font-size: 1.2em;
+    /* Font-Size * 2 Lines * Line-Height */
+    max-height: calc(var(--font-size) * 2 * 1.2);
+    overflow: hidden;
+    justify-self: flex-start;
+    & > h4 {
+      font-weight: 600;
+      font-size: var(--font-size);
+    }
+  }
+  & > *:nth-child(2) {
+    justify-self: flex-end;
+    font-size: 1.1em;
+    font-weight: 600;
+  }
+}

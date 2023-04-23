@@ -1,13 +1,18 @@
 import { useRef } from 'react';
+import { Game } from '../../Models';
+import { headerImageString } from '../../util/steam';
 import styles from './Card.module.css';
 import { useSwipeable } from 'react-swipeable';
+import { Price } from '../price/price';
+import { Row } from '../utility/Flex';
+import { Review } from '../review/Review';
 
 type BaseProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 >;
 
-type Omissions = keyof Pick<BaseProps, 'className' | 'style'>;
+type Omissions = keyof Pick<BaseProps, 'style'>;
 
 type Inclusions = {
   headerImages?: readonly [string?, string?, string?];
@@ -33,6 +38,7 @@ export const Card = ({
   headerImages,
   children,
   clickable,
+  className,
   ...props
 }: Properties) => {
   const focused = useRef(-1);
@@ -61,13 +67,13 @@ export const Card = ({
 
   const hasImages = headerImages !== undefined && headerImages.length > 0;
 
-  const style = `${styles['card']}${
-    clickable ? ` ${styles['clickable']}` : ''
-  }`;
+  const cn = [styles['card'], clickable ? styles['clickable'] : '', className]
+    .join(' ')
+    .trim();
 
   return (
     <div
-      className={style}
+      className={cn}
       style={hasImages ? undefined : { gridTemplateRows: '1fr' }}
       {...props}
     >
@@ -82,3 +88,29 @@ export const Card = ({
     </div>
   );
 };
+
+export const GameCard = ({ game }: { game: Game }) => (
+  <a href={`https://store.steampowered.com/app/${game.appId}`} target="_blank">
+    <Card
+      clickable
+      headerImages={[headerImageString(game.appId)]}
+      className={styles['card--game']}
+    >
+      <div>
+        <h4>
+          {`${game.name.slice(0, 46).trim()}${
+            game.name.length > 45 ? '...' : ''
+          }`}
+        </h4>
+      </div>
+      <Row align="center" gap="0.8rem">
+        <Price
+          price={game.price}
+          initialPrice={game.initial_price}
+          discount={game.discount}
+        />
+        <Review score={game.review_score} />
+      </Row>
+    </Card>
+  </a>
+);

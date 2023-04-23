@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { API } from '../../api/api';
 import { Item } from '../../Models';
-import { Card } from '../../components/card/Card';
+import { Card, GameCard } from '../../components/card/Card';
 import { headerImageString } from '../../util/steam';
 import styles from './Drop.module.css';
 import { EntryCounter } from '../../components/entry-counter/EntryCounter';
@@ -70,6 +70,13 @@ export const Drop = () => {
           onRequestClose={() => setModalItem(O.none)}
           shouldCloseOnOverlayClick
           overlayElement={(props, content) => <div {...props}>{content}</div>}
+          style={{
+            content: {
+              maxWidth: `min(90vw, calc(var(--drop-card-width) * ${
+                O.isSome(modalItem) ? modalItem.value.items.length : 0
+              }.2)`,
+            },
+          }}
         >
           {pipe(
             modalItem,
@@ -92,27 +99,7 @@ export const Drop = () => {
                   <ul className={styles['modal__games']}>
                     {item.items.map((game, idx) => (
                       <li key={idx}>
-                        <a
-                          href={`https://store.steampowered.com/app/${game.appId}`}
-                          target="_blank"
-                        >
-                          <Card
-                            clickable
-                            headerImages={[headerImageString(game.appId)]}
-                          >
-                            <Row align="center" justify="center" gap="0.8rem">
-                              {/*// TODO Add review score and price info */}
-                              <h4 className="mr-auto">{game.name}</h4>
-                              <span>
-                                {(game.price / 100).toLocaleString('en-US', {
-                                  style: 'currency',
-                                  currency: 'USD',
-                                })}
-                              </span>
-                              <span>{game.review_score}%</span>
-                            </Row>
-                          </Card>
-                        </a>
+                        <GameCard game={game} />
                       </li>
                     ))}
                   </ul>
