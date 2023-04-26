@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/expression"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/glasket/datastructures/set"
 	"github.com/rs/zerolog/log"
 )
 
@@ -135,22 +136,26 @@ type DropItemEntity struct {
 	Key
 	Name    string
 	Items   []GameItem
-	Entries []string `dynamodbav:",stringset"`
+	Entries []string `dynamodbav:",omitempty,stringset"`
 }
 
 func BuildDropItemEntity(d Drop, i Item) DropItemEntity {
 	pk, sk := buildKey(d, i)
+	var entries []string
+	if i.Entries.Count() != 0 {
+		entries = i.Entries.Values()
+	}
 	return DropItemEntity{
 		Key:     Key{PK: pk, SK: sk},
 		Name:    i.Name,
 		Items:   i.Items,
-		Entries: i.Entries.Values(),
+		Entries: entries,
 	}
 }
 
 func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity, err error) {
 	addSet := types.AttributeValueMemberSS{Value: []string{userId}}
-	update := expression.Add(expression.Name("entries"), expression.Value(addSet))
+	update := expression.Add(expression.Name("Entries"), expression.Value(addSet))
 	expr, err := expression.NewBuilder().WithUpdate(update).Build()
 	if err != nil {
 		return newEntity, err
@@ -175,7 +180,7 @@ func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity,
 
 func (d DropItemEntity) RemoveRaffleEntry(userId string) (newEntity DropItemEntity, err error) {
 	removeSet := types.AttributeValueMemberSS{Value: []string{userId}}
-	update := expression.Delete(expression.Name("entries"), expression.Value(removeSet))
+	update := expression.Delete(expression.Name("Entries"), expression.Value(removeSet))
 	expr, err := expression.NewBuilder().WithUpdate(update).Build()
 	if err != nil {
 		return newEntity, err
@@ -204,10 +209,11 @@ func (d DropItemEntity) ToItem() Item {
 		d.Items[i].Key = ""
 	}
 	return Item{
-		ID:     keyToId(d.SK),
-		DropId: keyToId(d.PK),
-		Name:   d.Name,
-		Items:  d.Items,
+		ID:      keyToId(d.SK),
+		DropId:  keyToId(d.PK),
+		Name:    d.Name,
+		Items:   d.Items,
+		Entries: set.NewSetFromSlice(d.Entries),
 	}
 }
 

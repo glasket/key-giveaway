@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { API } from '../../api/api';
 import { Item } from '../../Models';
@@ -6,11 +6,13 @@ import { Card, GameCard } from '../../components/card/Card';
 import { headerImageString } from '../../util/steam';
 import styles from './Drop.module.css';
 import { EntryCounter } from '../../components/entry-counter/EntryCounter';
-import { Column, Row } from '../../components/utility/Flex';
+import { Row } from '../../components/utility/Flex';
 import ReactModal from 'react-modal';
 
 import * as O from 'fp-ts/lib/Option';
 import { pipe } from 'fp-ts/lib/function';
+import { UserContext } from '../../context/UserContext';
+import { ItemKey } from '../../Responses';
 
 export const Drop = () => {
   const { dropId } = useParams();
@@ -20,6 +22,7 @@ export const Drop = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [modalItem, setModalItem] = useState<O.Option<Item>>(O.none);
+  const [user] = useContext(UserContext);
 
   const getItems = useCallback(async () => {
     setItems(await API.GetDropItems(dropId));
@@ -29,7 +32,10 @@ export const Drop = () => {
   useEffect(() => {
     getItems();
   }, [getItems]);
-  console.log(items);
+
+  const toggleEntry = (itemKey: ItemKey, remove: boolean) => {
+    remove ? API.RemoveEntry(itemKey) : API.AddEntry(itemKey);
+  };
 
   const itemsElements = items
     .map((i) => ({
@@ -84,7 +90,6 @@ export const Drop = () => {
               () => <></>,
               (item) => (
                 <>
-                  {/*// TODO Put grid around header for button alignment */}
                   <div className="modal__header">
                     <h3 className={`ul ${styles['modal__title']}`}>
                       {item.name}
@@ -104,7 +109,17 @@ export const Drop = () => {
                     ))}
                   </ul>
                   <div className="modal__footer">
-                    <button>Enter</button>
+                    <button
+                      disabled={user === null}
+                      onClick={() =>
+                        toggleEntry(
+                          { item_id: item.id, drop_id: item.drop_id },
+                          item.entries.has(user!.id)
+                        )
+                      }
+                    >
+                      {item.entries.has(user?.id ?? '') ? 'Remove' : 'Enter'}
+                    </button>
                   </div>
                 </>
               )

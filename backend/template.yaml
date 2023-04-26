@@ -177,7 +177,7 @@ Resources:
   RemoveRaffleEntryFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: AddRaffleEntry
+      Handler: RemoveRaffleEntry
       CodeUri: ./deploy/RemoveRaffleEntry.zip
       Events:
         CatchAll:

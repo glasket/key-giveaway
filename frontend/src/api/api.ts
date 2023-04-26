@@ -1,7 +1,11 @@
-import { GetDropItemsResponse, GetDropsResponse, isLoginResponse, LoginRequest, LoginResponse } from '../Responses';
+import { AddRaffleEntryRequest, AddRaffleEntryResponse, GetDropItemsResponse, GetDropsResponse, isLoginResponse, LoginRequest, LoginResponse, RemoveRaffleEntryRequest, RemoveRaffleEntryResponse } from '../Responses';
 import { STORAGE_KEY } from '../util/consts';
 
 import { Drop, dropFromJson, Item, itemFromJson, Json } from '../Models';
+import { asType } from '../util/as';
+import { keys } from '../../transformers/ts-transformer-keys';
+import * as O from 'fp-ts/lib/Option';
+import { pipe } from 'fp-ts/lib/function';
 
 let fetchProps: RequestInit = {
   headers: {
@@ -108,5 +112,39 @@ export const API = {
       newV.items.sort((a, b) => a.name.localeCompare(b.name));
       return newV;
     }).sort((a, b) => a.name.localeCompare(b.name));
+  },
+  AddEntry: async (req: AddRaffleEntryRequest): Promise<AddRaffleEntryResponse> => {
+    const resp = await fetch(`${url}/entry`, {
+      method: 'POST',
+      body: JSON.stringify(req),
+      ...fetchProps
+    });
+    if (resp.status !== 200) {
+      console.error(resp.statusText);
+      throw new Error(resp.statusText);
+    }
+    const maybeItem = asType<AddRaffleEntryResponse>(await resp.json(), keys<Item>());
+    return pipe(maybeItem,
+      O.fold(
+        () => { throw new Error('Response was not of correct type'); },
+        (item) => item
+      ));
+  },
+  RemoveEntry: async (req: RemoveRaffleEntryRequest): Promise<RemoveRaffleEntryResponse> => {
+    const resp = await fetch(`${url}/entry`, {
+      method: 'DELETE',
+      body: JSON.stringify(req),
+      ...fetchProps
+    });
+    if (resp.status !== 200) {
+      console.log(resp.statusText);
+      throw new Error(resp.statusText);
+    }
+    const maybeItem = asType<RemoveRaffleEntryResponse>(await resp.json(), keys<Item>());
+    return pipe(maybeItem,
+      O.fold(
+        () => { throw new Error('Response was not of correct type'); },
+        (item) => item
+      ));
   }
 };

@@ -1,7 +1,7 @@
 import { Drop, Item } from './Models';
 import { FacebookToken } from './util/facebook.types';
 
-type ItemKey = {
+export type ItemKey = {
   drop_id: string;
   item_id: string;
 };

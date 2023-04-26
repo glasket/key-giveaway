@@ -68,7 +68,8 @@ export class FacebookApi {
                       token: logResp.token,
                       name: resp.name,
                       isFriends: logResp.is_friends,
-                      picture: resp.picture.data.url
+                      picture: resp.picture.data.url,
+                      id: resp.id
                     } as UserData),
                       (d) => this.#setUserData(d),
                       TO.fromOption
@@ -101,7 +102,7 @@ export class FacebookApi {
               TE.chain(
                 (r) => {
                   return pipe(
-                    O.some({ token: resp.token, isFriends: resp.is_friends, name: r.name, picture: r.picture.data.url } as UserData),
+                    O.some({ token: resp.token, isFriends: resp.is_friends, name: r.name, picture: r.picture.data.url, id: r.id } as UserData),
                     (d) => this.#setUserData(d),
                     TE.fromOption(() => new Error('No userdata'))
                   );
