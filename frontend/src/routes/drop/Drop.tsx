@@ -1,4 +1,4 @@
-import { useCallback, useContext, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { API } from '../../api/api';
 import { Item } from '../../Models';
@@ -21,7 +21,7 @@ export const Drop = () => {
   }
   const [items, setItems] = useState<Item[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [modalItem, setModalItem] = useState<O.Option<Item>>(O.none);
+  const [modalItem, setModalItem] = useState<O.Option<number>>(O.none);
   const [user] = useContext(UserContext);
 
   const getItems = useCallback(async () => {
@@ -33,8 +33,23 @@ export const Drop = () => {
     getItems();
   }, [getItems]);
 
-  const toggleEntry = (itemKey: ItemKey, remove: boolean) => {
-    remove ? API.RemoveEntry(itemKey) : API.AddEntry(itemKey);
+  const toggleEntry = async (itemKey: ItemKey, remove: boolean) => {
+    const newItem = await (remove
+      ? API.RemoveEntry(itemKey)
+      : API.AddEntry(itemKey));
+    // setItems((items) => {
+    //   items[items.findIndex((val) => val.id === itemKey.item_id)] = newItem;
+    //   return items;
+    // });
+    setItems(
+      items.map((v) => {
+        if (v.id === newItem.id) {
+          return newItem;
+        } else {
+          return v;
+        }
+      })
+    );
   };
 
   const itemsElements = items
@@ -49,8 +64,8 @@ export const Drop = () => {
     .map(({ i, images }, idx) => (
       <Card
         clickable
-        onClick={() => setModalItem(O.some(i))}
-        onKeyUp={(e) => e.key === 'Enter' && setModalItem(O.some(i))}
+        onClick={() => setModalItem(O.some(idx))}
+        onKeyUp={(e) => e.key === 'Enter' && setModalItem(O.some(idx))}
         headerImages={images}
         key={i.id}
         tabIndex={0}
@@ -79,7 +94,7 @@ export const Drop = () => {
           style={{
             content: {
               maxWidth: `min(90vw, calc(var(--drop-card-width) * ${
-                O.isSome(modalItem) ? modalItem.value.items.length : 0
+                O.isSome(modalItem) ? items[modalItem.value]!.items.length : 0
               }.2)`,
             },
           }}
@@ -88,41 +103,44 @@ export const Drop = () => {
             modalItem,
             O.fold(
               () => <></>,
-              (item) => (
-                <>
-                  <div className="modal__header">
-                    <h3 className={`ul ${styles['modal__title']}`}>
-                      {item.name}
-                    </h3>
-                    <button
-                      className={styles['modal__close']}
-                      onClick={() => setModalItem(O.none)}
-                    >
-                      X
-                    </button>
-                  </div>
-                  <ul className={styles['modal__games']}>
-                    {item.items.map((game, idx) => (
-                      <li key={idx}>
-                        <GameCard game={game} />
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="modal__footer">
-                    <button
-                      disabled={user === null}
-                      onClick={() =>
-                        toggleEntry(
-                          { item_id: item.id, drop_id: item.drop_id },
-                          item.entries.has(user!.id)
-                        )
-                      }
-                    >
-                      {item.entries.has(user?.id ?? '') ? 'Remove' : 'Enter'}
-                    </button>
-                  </div>
-                </>
-              )
+              (i) => {
+                const item = items[i]!;
+                return (
+                  <>
+                    <div className="modal__header">
+                      <h3 className={`ul ${styles['modal__title']}`}>
+                        {item.name}
+                      </h3>
+                      <button
+                        className={styles['modal__close']}
+                        onClick={() => setModalItem(O.none)}
+                      >
+                        X
+                      </button>
+                    </div>
+                    <ul className={styles['modal__games']}>
+                      {item.items.map((game, idx) => (
+                        <li key={idx}>
+                          <GameCard game={game} />
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="modal__footer">
+                      <button
+                        disabled={user === null}
+                        onClick={() =>
+                          toggleEntry(
+                            { item_id: item.id, drop_id: item.drop_id },
+                            item.entries.has(user!.id)
+                          )
+                        }
+                      >
+                        {item.entries.has(user?.id ?? '') ? 'Remove' : 'Enter'}
+                      </button>
+                    </div>
+                  </>
+                );
+              }
             )
           )}
         </ReactModal>
