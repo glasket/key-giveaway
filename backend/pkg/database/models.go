@@ -193,6 +193,37 @@ func GetAllDrops(includeOld bool) ([]Drop, error) {
 	return drops, nil
 }
 
+func validateDrop(id string) bool {
+	e := BuildDropEntity(Drop{ID: id})
+	expr, err := expression.NewBuilder().
+		WithKeyCondition(
+			expression.KeyAnd(
+				expression.KeyEqual(expression.Key("PK"), expression.Value(e.PK)),
+				expression.KeyBeginsWith(expression.Key("SK"), string(e.SK)),
+			)).WithFilter(
+		expression.GreaterThan(
+			expression.Name("End"),
+			expression.Value(time.Now().UTC().Format(time.RFC3339)))).
+		Build()
+	if err != nil {
+		return false
+	}
+	out, err := db.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 TableName,
+		KeyConditionExpression:    expr.KeyCondition(),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+		FilterExpression:          expr.Filter(),
+	})
+	if err != nil {
+		return false
+	}
+	if out.Count < 1 {
+		return false
+	}
+	return true
+}
+
 type Item struct {
 	ID      string          `json:"id"`
 	DropId  string          `json:"drop_id"`
@@ -210,17 +241,20 @@ func (i Item) Tag() rune {
 }
 
 func (i Item) AddRaffleEntry(userId string) (Item, error) {
-	entity := BuildDropItemEntity(Drop{ID: i.DropId}, i)
-	entity, err := entity.AddRaffleEntry(userId)
-	if err != nil {
-		return Item{}, err
-	}
-	return entity.ToItem(), nil
+	return i.HandleRaffleEntry(userId, DropItemEntity.AddRaffleEntry)
 }
 
 func (i Item) RemoveRaffleEntry(userId string) (Item, error) {
+	return i.HandleRaffleEntry(userId, DropItemEntity.RemoveRaffleEntry)
+}
+
+func (i Item) HandleRaffleEntry(userId string, raffleFunc func(e DropItemEntity, userId string) (DropItemEntity, error)) (Item, error) {
+	valid := validateDrop(i.DropId)
+	if !valid {
+		return Item{}, errors.New("drop is expired")
+	}
 	e := BuildDropItemEntity(Drop{ID: i.DropId}, i)
-	e, err := e.RemoveRaffleEntry(userId)
+	e, err := raffleFunc(e, userId)
 	if err != nil {
 		return Item{}, err
 	}

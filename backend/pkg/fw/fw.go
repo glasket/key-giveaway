@@ -134,5 +134,13 @@ func BadRequest(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse,
 }
 
 func Error(err error) (events.APIGatewayV2HTTPResponse, error) {
-	return events.APIGatewayV2HTTPResponse{}, err
+	j, e := json.Marshal(err.Error())
+	if e != nil {
+		log.Error().Err(e).Send()
+		j = []byte("Something went wrong")
+	}
+	return events.APIGatewayV2HTTPResponse{
+		StatusCode: 500,
+		Body:       string(j),
+	}, nil
 }

@@ -1,4 +1,3 @@
-import { isSome } from 'fp-ts/lib/Option';
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API } from '../../api/api';
@@ -44,7 +43,9 @@ export const Drops = () => {
                 <li key={drop.id}>
                   <Card>
                     <h3>
-                      <Link to={`/${drop.id}`}>{drop.name}</Link>
+                      <Link to={`/${drop.id}`} state={drop}>
+                        {drop.name}
+                      </Link>
                     </h3>
                     <Timer end={drop.ends_at} />
                   </Card>

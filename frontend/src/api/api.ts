@@ -54,9 +54,10 @@ export const API = {
       body: JSON.stringify(req),
       ...fetchProps,
     });
-    console.log(resp);
+    if (resp.status !== 200) {
+      errorHandle(await resp.json());
+    }
     const respBody = await resp.json();
-    console.log(respBody);
     if (isLoginResponse(respBody)) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(respBody));
       return respBody;
@@ -70,8 +71,7 @@ export const API = {
       ...fetchProps
     });
     if (resp.status !== 200) {
-      console.error(resp.statusText);
-      return false;
+      errorHandle(await resp.json());
     }
     return true;
   },
@@ -80,8 +80,7 @@ export const API = {
       ...fetchProps
     });
     if (resp.status !== 200) {
-      console.error(resp.statusText);
-      throw new Error(resp.statusText);
+      errorHandle(await resp.json());
     }
     const maybeDrops = await resp.json();
     if (maybeDrops == null) {
@@ -97,8 +96,7 @@ export const API = {
       ...fetchProps
     });
     if (resp.status !== 200) {
-      console.error(resp.statusText);
-      throw new Error(resp.statusText);
+      errorHandle(await resp.json());
     }
     const maybeItems = await resp.json();
     if (maybeItems == null) {
@@ -120,14 +118,19 @@ export const API = {
       ...fetchProps
     });
     if (resp.status !== 200) {
-      console.error(resp.statusText);
-      throw new Error(resp.statusText);
+      errorHandle(await resp.json());
     }
-    const maybeItem = asType<AddRaffleEntryResponse>(await resp.json(), keys<Item>());
+    const maybeItem = asType<Json<AddRaffleEntryResponse>>(await resp.json(), keys<Item>());
     return pipe(maybeItem,
       O.fold(
         () => { throw new Error('Response was not of correct type'); },
-        (item) => item
+        (item) => ({
+          id: item.id,
+          drop_id: item.drop_id,
+          name: item.name,
+          items: item.items,
+          entries: new Set(item.entries),
+        } as AddRaffleEntryResponse)
       ));
   },
   RemoveEntry: async (req: RemoveRaffleEntryRequest): Promise<RemoveRaffleEntryResponse> => {
@@ -137,14 +140,24 @@ export const API = {
       ...fetchProps
     });
     if (resp.status !== 200) {
-      console.log(resp.statusText);
-      throw new Error(resp.statusText);
+      errorHandle(await resp.text());
     }
-    const maybeItem = asType<RemoveRaffleEntryResponse>(await resp.json(), keys<Item>());
+    const maybeItem = asType<Json<RemoveRaffleEntryResponse>>(await resp.json(), keys<Item>());
     return pipe(maybeItem,
       O.fold(
         () => { throw new Error('Response was not of correct type'); },
-        (item) => item
+        (item) => ({
+          id: item.id,
+          drop_id: item.drop_id,
+          name: item.name,
+          items: item.items,
+          entries: new Set(item.entries),
+        } as RemoveRaffleEntryResponse)
       ));
   }
+};
+
+const errorHandle = (err: string) => {
+  console.error(err);
+  throw new Error(err);
 };

@@ -32,7 +32,8 @@ export const dropFromJson = (json: Json<Drop>): Drop => {
     return {
       id: json.id,
       name: json.name,
-      ends_at: new Date(json.ends_at)
+      ends_at: new Date(json.ends_at),
+      items: []
     };
   }
   throw new Error('Not a drop');

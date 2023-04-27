@@ -1,7 +1,7 @@
-import { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import { API } from '../../api/api';
-import { Item } from '../../Models';
+import { Drop as DropModel, Item } from '../../Models';
 import { Card, GameCard } from '../../components/card/Card';
 import { headerImageString } from '../../util/steam';
 import styles from './Drop.module.css';
@@ -13,6 +13,8 @@ import * as O from 'fp-ts/lib/Option';
 import { pipe } from 'fp-ts/lib/function';
 import { UserContext } from '../../context/UserContext';
 import { ItemKey } from '../../Responses';
+import { asTypeC } from '../../util/as';
+import { keys } from '../../../transformers/ts-transformer-keys';
 
 export const Drop = () => {
   const { dropId } = useParams();
@@ -23,6 +25,21 @@ export const Drop = () => {
   const [loaded, setLoaded] = useState(false);
   const [modalItem, setModalItem] = useState<O.Option<number>>(O.none);
   const [user] = useContext(UserContext);
+  const { state } = useLocation();
+
+  const drop = useMemo(
+    () =>
+      pipe(
+        state,
+        asTypeC<DropModel>(keys<DropModel>()),
+        O.fold(
+          () => ({ id: '', name: '', ends_at: new Date(0), items: [] }),
+          (drop) => drop
+        )
+      ),
+    [state]
+  );
+  console.log(drop);
 
   const getItems = useCallback(async () => {
     setItems(await API.GetDropItems(dropId));
@@ -125,19 +142,23 @@ export const Drop = () => {
                         </li>
                       ))}
                     </ul>
-                    <div className="modal__footer">
-                      <button
-                        disabled={user === null}
-                        onClick={() =>
-                          toggleEntry(
-                            { item_id: item.id, drop_id: item.drop_id },
-                            item.entries.has(user!.id)
-                          )
-                        }
-                      >
-                        {item.entries.has(user?.id ?? '') ? 'Remove' : 'Enter'}
-                      </button>
-                    </div>
+                    {drop.ends_at.getTime() > Date.now() && (
+                      <div className="modal__footer">
+                        <button
+                          disabled={user === null}
+                          onClick={() =>
+                            toggleEntry(
+                              { item_id: item.id, drop_id: item.drop_id },
+                              item.entries.has(user!.id)
+                            )
+                          }
+                        >
+                          {item.entries.has(user?.id ?? '')
+                            ? 'Remove'
+                            : 'Enter'}
+                        </button>
+                      </div>
+                    )}
                   </>
                 );
               }
