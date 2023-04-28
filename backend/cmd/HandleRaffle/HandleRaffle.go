@@ -8,6 +8,7 @@ import (
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/fw"
 	"math/rand"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -48,6 +49,7 @@ func HandleRaffle(ctx context.Context, evt events.CloudWatchEvent) error {
 		winner := database.User{
 			ID: item.Entries.Values()[winningEntry],
 		}
+		item.InsertTime = time.Now()
 		userItemEntities = append(userItemEntities, database.BuildUserItemEntity(winner, item))
 	}
 	database.BatchWrite(userItemEntities)

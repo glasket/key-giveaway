@@ -78,24 +78,27 @@ func (u UserEntity) getKey() Key { return u.Key }
 
 type UserItemEntity struct {
 	Key
-	Name  string
-	Items []GameItem
+	Name       string
+	Items      []GameItem
+	InsertTime time.Time
 }
 
 func BuildUserItemEntity(u User, i Item) UserItemEntity {
 	pk, sk := buildKey(u, i)
 	return UserItemEntity{
-		Key:   Key{PK: pk, SK: sk},
-		Name:  i.Name,
-		Items: i.Items,
+		Key:        Key{PK: pk, SK: sk},
+		Name:       i.Name,
+		Items:      i.Items,
+		InsertTime: i.InsertTime,
 	}
 }
 
 func (e *UserItemEntity) ToItem() Item {
 	return Item{
-		ID:    keyToId(e.SK),
-		Name:  e.Name,
-		Items: e.Items,
+		ID:         keyToId(e.SK),
+		Name:       e.Name,
+		Items:      e.Items,
+		InsertTime: e.InsertTime,
 	}
 }
 

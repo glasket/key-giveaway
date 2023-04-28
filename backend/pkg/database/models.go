@@ -225,11 +225,12 @@ func validateDrop(id string) bool {
 }
 
 type Item struct {
-	ID      string          `json:"id"`
-	DropId  string          `json:"drop_id"`
-	Name    string          `json:"name"`
-	Items   []GameItem      `json:"items"`
-	Entries set.Set[string] `json:"entries"`
+	ID         string          `json:"id"`
+	DropId     string          `json:"drop_id"`
+	Name       string          `json:"name"`
+	Items      []GameItem      `json:"items"`
+	Entries    set.Set[string] `json:"entries"`
+	InsertTime time.Time       `json:"insert_time,omitempty"`
 }
 
 func (i Item) Id() string {
