@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/fw"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -40,13 +38,7 @@ func GetDropItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (even
 		return fw.Error(err)
 	}
 
-	resp, err := json.Marshal(drop.Items)
-	if err != nil {
-		return fw.Error(err)
-	}
-	writer.WriteHeader(http.StatusOK)
-	writer.Write(resp)
-	return writer.GetProxyResponse()
+	return fw.JsonOk(writer, drop.Items)
 }
 
 func main() {

@@ -6,7 +6,6 @@ import (
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/facebook"
 	"key-giveaway/pkg/fw"
-	"net/http"
 	"os"
 
 	"github.com/aws/aws-lambda-go/events"
@@ -100,14 +99,7 @@ func login(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIG
 		return fw.Error(err)
 	}
 
-	writer.WriteHeader(http.StatusOK)
-	resp := response{Token: longToken, Friends: u.Friends}
-	respJson, err := json.Marshal(resp)
-	if err != nil {
-		return fw.Error(err)
-	}
-	writer.Write(respJson)
-	return writer.GetProxyResponse()
+	return fw.JsonOk(writer, response{Token: longToken, Friends: u.Friends})
 }
 
 func main() {

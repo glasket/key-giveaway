@@ -92,6 +92,14 @@ func Ok(w *core.ProxyResponseWriterV2, resp []byte) (events.APIGatewayV2HTTPResp
 	return w.GetProxyResponse()
 }
 
+func JsonOk(w *core.ProxyResponseWriterV2, resp interface{}) (events.APIGatewayV2HTTPResponse, error) {
+	json, err := json.Marshal(resp)
+	if err != nil {
+		return Error(err)
+	}
+	return Ok(w, json)
+}
+
 func NotFriends(w *core.ProxyResponseWriterV2) (events.APIGatewayV2HTTPResponse, error) {
 	w.WriteHeader(http.StatusUnauthorized)
 	resp, err := json.Marshal(ErrorResponse{Reason: "not friends"})

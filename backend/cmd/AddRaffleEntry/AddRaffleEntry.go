@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/fw"
-	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -62,13 +61,7 @@ func addRaffleEntry(ctx context.Context, req events.APIGatewayV2HTTPRequest) (ev
 		return fw.Error(err)
 	}
 
-	writer.WriteHeader(http.StatusOK)
-	resp, err := json.Marshal(item)
-	if err != nil {
-		return fw.Error(err)
-	}
-	writer.Write(resp)
-	return writer.GetProxyResponse()
+	return fw.JsonOk(writer, item)
 }
 
 func main() {
