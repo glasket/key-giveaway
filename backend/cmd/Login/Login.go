@@ -7,6 +7,7 @@ import (
 	"key-giveaway/pkg/facebook"
 	"key-giveaway/pkg/fw"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -29,6 +30,7 @@ type requestJson struct {
 type response struct {
 	Token   facebook.Token `json:"token"`
 	Friends bool           `json:"is_friends"`
+	Expiry  int64          `json:"expires_at"`
 }
 
 func login(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIGatewayV2HTTPResponse, error) {
@@ -88,9 +90,8 @@ func login(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIG
 		return fw.Error(err)
 	}
 
-	// Invalidate session before Facebook token
-	// Simplifies session management somewhat
-	session.Options.MaxAge = *longToken.ExpiresIn - 300
+	expiresAt := time.Now().Add(time.Second * time.Duration(*longToken.ExpiresIn))
+	session.Options.MaxAge = int(time.Until(expiresAt).Seconds())
 	session.Values["id"] = u.ID
 
 	err = session.Save(request, writer)
@@ -99,7 +100,7 @@ func login(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.APIG
 		return fw.Error(err)
 	}
 
-	return fw.JsonOk(writer, response{Token: longToken, Friends: u.Friends})
+	return fw.JsonOk(writer, response{Token: longToken, Friends: u.Friends, Expiry: expiresAt.UnixMilli()})
 }
 
 func main() {

@@ -21,6 +21,7 @@ export type LoginRequest = {
 export type LoginResponse = {
   token: FacebookToken;
   is_friends: boolean;
+  expires_at: number;
 };
 
 export const isLoginResponse = (resp: any): resp is LoginResponse => {

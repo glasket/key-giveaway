@@ -31,7 +31,17 @@ const getStoredItem = (key: string): O.Option<string> => {
 export class FacebookApi {
   readonly #fb: FacebookSDK;
 
-  token: O.Option<string> = O.none;
+  #token: O.Option<string> = O.none;
+  get token(): O.Option<string> {
+    return this.#token;
+  }
+  setToken(value: LoginResponse) {
+    if (value.expires_at <= Date.now()) {
+      localStorage.removeItem(STORAGE_KEY);
+      throw new Error('token expired');
+    }
+    this.#token = O.some(value.token.access_token);
+  }
 
   #userData: O.Option<UserData> = O.none;
 
@@ -60,7 +70,11 @@ export class FacebookApi {
             O.fold(
               () => TO.none,
               (logResp) => {
-                this.token = O.some(logResp.token.access_token);
+                try {
+                  this.setToken(logResp);
+                } catch (e: any) {
+                  return TO.none;
+                }
                 return pipe(
                   this.Me(),
                   TE.match((err) => { alert(err); return TO.none; },
@@ -95,21 +109,31 @@ export class FacebookApi {
       TE.chain<Error, FacebookLoginResponse, UserData>((resp) => pipe(
         TE.tryCatch(() => API.Login({ token: resp.authResponse!.accessToken }), (r) => r instanceof Error ? r : new Error('Something went wrong')),
         TE.chain(
-          (resp) => {
-            this.token = O.some(resp.token.access_token);
-            return pipe(
-              this.Me(),
-              TE.chain(
-                (r) => {
-                  return pipe(
-                    O.some({ token: resp.token, isFriends: resp.is_friends, name: r.name, picture: r.picture.data.url, id: r.id } as UserData),
-                    (d) => this.#setUserData(d),
-                    TE.fromOption(() => new Error('No userdata'))
-                  );
+          (resp) => pipe(
+            asType(resp, keys<LoginResponse>()),
+            O.fold(
+              () => TE.left(new Error('not a login response')),
+              (resp) => {
+                try {
+                  this.setToken(resp);
+                } catch (e) {
+                  TE.left(e);
                 }
-              ), TE.orElse((l) => { alert(l); return TE.left(l); })
-            );
-          }
+                return pipe(
+                  this.Me(),
+                  TE.chain(
+                    (r) => {
+                      return pipe(
+                        O.some({ token: resp.token, isFriends: resp.is_friends, name: r.name, picture: r.picture.data.url, id: r.id } as UserData),
+                        (d) => this.#setUserData(d),
+                        TE.fromOption(() => new Error('No userdata'))
+                      );
+                    }
+                  ), TE.orElse((l) => { alert(l); return TE.left(l); })
+                );
+              }
+            )),
+
         )
       ))
     );
