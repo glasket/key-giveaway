@@ -9,3 +9,9 @@
   margin-top: calc(var(--nav-height) + 2 * var(--nav-height-padding));
   padding: 0.8rem 0;
 }
+
+.footer {
+  border-top: 1px solid var(--darker);
+  margin-top: auto;
+  padding: 0.6rem;
+}

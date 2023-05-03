@@ -1,8 +1,7 @@
 .card {
   display: grid;
   grid-template-rows: calc(min(var(--drop-card-width), 95vw) * 0.469) auto;
-  background-color: var(--lightest);
-  color: var(--darkest);
+  background-color: var(--darker);
   border-radius: var(--br);
   overflow: hidden;
 }

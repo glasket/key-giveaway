@@ -4,6 +4,7 @@ import { API } from '../../api/api';
 import { Card } from '../../components/card/Card';
 import { Timer } from '../../components/timer/Timer';
 import { Drop } from '../../Models';
+import { Column } from '../../components/utility/Flex';
 
 export const Drops = () => {
   const [drops, setDrops] = useState<Array<Drop>>([]);
@@ -38,7 +39,7 @@ export const Drops = () => {
       ) : (
         <>
           {drops.length > 0 ? (
-            <ul>
+            <Column Element="ul" gap="0.6rem">
               {drops.map((drop) => (
                 <li key={drop.id}>
                   <Card>
@@ -51,7 +52,7 @@ export const Drops = () => {
                   </Card>
                 </li>
               ))}
-            </ul>
+            </Column>
           ) : (
             <h2>No Active Drops</h2>
           )}

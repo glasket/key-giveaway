@@ -7,7 +7,7 @@ export const EntryCounter = ({ count }: { count: number }) => (
     className={styles['container']}
     title={pluralizer(count, 'entry', 'entries')}
   >
-    <img src={ticketSvg} />
+    <img src={ticketSvg} className={styles['ticket']} />
     <p className="wght-500">{count}</p>
   </span>
 );

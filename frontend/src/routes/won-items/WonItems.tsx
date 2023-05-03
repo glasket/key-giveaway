@@ -31,7 +31,7 @@ const WonItems = () => {
                 <h4>{i.name}</h4>
                 <ul>
                   {i.items.map((g) => (
-                    <Column>
+                    <Column key={i.id + g.appId}>
                       <h5>{g.name}</h5>
                       <div>{g.key}</div>
                     </Column>

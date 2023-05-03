@@ -18,8 +18,8 @@ import { FacebookSDK } from './util/facebook.types';
 import { pipe } from 'fp-ts/lib/function';
 import { FacebookApi } from './util/facebook';
 import ReactModal from 'react-modal';
+import { Privacy } from './routes/static/Privacy';
 
-// TODO Give FB a type defining the API functions
 declare global {
   interface Window {
     fbAsyncInit: any;
@@ -44,6 +44,10 @@ const router = createBrowserRouter([
       {
         path: 'won',
         element: <WonItems />,
+      },
+      {
+        path: 'privacy',
+        element: <Privacy />,
       },
     ],
   },

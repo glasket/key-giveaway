@@ -4,7 +4,21 @@
   align-items: center;
   gap: 0.2rem;
 
-  > img {
+  > .ticket {
     height: 1em;
+  }
+}
+
+html:global(.dark) .ticket {
+  filter: invert(1) !important;
+}
+
+html:global(.light) .ticket {
+  filter: invert(0) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ticket {
+    filter: invert(1);
   }
 }

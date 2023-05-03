@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { keys } from '../transformers/ts-transformer-keys';
 import {
   UserContext,
@@ -12,6 +12,7 @@ import styles from './App.module.css';
 
 import * as O from 'fp-ts/lib/Option';
 import { pipe } from 'fp-ts/lib/function';
+import { Row } from './components/utility/Flex';
 
 type Properties = {
   nav: JSX.Element;
@@ -48,6 +49,17 @@ const App = ({ nav }: Properties) => {
         <div className={styles['content']}>
           <Outlet />
         </div>
+        <Row
+          className={styles['footer']}
+          Element="footer"
+          align="center"
+          justify="center"
+          gap="1.2rem"
+          wrap
+        >
+          <a href="https://github.com/glasket/key-giveaway">Source</a>
+          <Link to="privacy">Privacy Policy</Link>
+        </Row>
       </UserContext.Provider>
     </>
   ) : (

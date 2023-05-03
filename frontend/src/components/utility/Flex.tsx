@@ -16,7 +16,7 @@ type FlexProps = {
   align?: 'start' | 'end' | 'center' | 'stretch';
   gap?: string;
   className?: string | undefined;
-  Element?: 'div' | 'ul' | 'span' | 'article' | 'section';
+  Element?: 'div' | 'ul' | 'span' | 'article' | 'section' | 'footer';
 };
 
 export const Flex = ({

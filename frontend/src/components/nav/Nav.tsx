@@ -18,7 +18,7 @@ const Nav = () => {
     <nav className={styles['nav']}>
       {isRoot || (
         <button className={styles['back']} onClick={returnHome}>
-          &#x2B60;
+          &#x1F814;
         </button>
       )}
       <div className={styles['logo']}>LOGO</div>

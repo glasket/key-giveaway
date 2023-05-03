@@ -18,6 +18,14 @@
 .back {
   grid-column: 1;
   justify-self: left;
+  align-self: center;
+  border-radius: 50%;
+  line-height: 1;
+  padding: 1rem;
+  font-weight: bold;
+  width: 4rem;
+  height: 4rem;
+  font-size: 1.8em;
 }
 .logo {
   grid-column: 2;
