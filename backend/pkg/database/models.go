@@ -106,7 +106,7 @@ func (d Drop) Save() error {
 	return nil
 }
 
-func (d Drop) GetItems() (Drop, error) {
+func (d Drop) GetItems(withKeys bool) (Drop, error) {
 	e := BuildDropEntity(d)
 	expr, err := expression.NewBuilder().
 		WithKeyCondition(
@@ -149,7 +149,7 @@ func (d Drop) GetItems() (Drop, error) {
 	var dropItemEntityList []DropItemEntity
 	attributevalue.UnmarshalListOfMaps(resp.Items, &dropItemEntityList)
 	for _, item := range dropItemEntityList {
-		d.Items = append(d.Items, item.ToItem())
+		d.Items = append(d.Items, item.ToItem(withKeys))
 	}
 	return d, nil
 }
@@ -259,7 +259,7 @@ func (i Item) HandleRaffleEntry(userId string, raffleFunc func(e DropItemEntity,
 	if err != nil {
 		return Item{}, err
 	}
-	return e.ToItem(), nil
+	return e.ToItem(false), nil
 }
 
 type GameItem struct {

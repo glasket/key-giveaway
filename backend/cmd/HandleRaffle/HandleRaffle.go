@@ -33,7 +33,7 @@ func HandleRaffle(ctx context.Context, evt events.CloudWatchEvent) error {
 	drop := database.Drop{
 		ID: req.DropID,
 	}
-	drop, err = drop.GetItems()
+	drop, err = drop.GetItems(true)
 	if err != nil {
 		return err
 	}
@@ -45,6 +45,9 @@ func HandleRaffle(ctx context.Context, evt events.CloudWatchEvent) error {
 	rand.Seed(int64(binary.BigEndian.Uint64(seed)))
 	var userItemEntities []database.UserItemEntity
 	for _, item := range drop.Items {
+		if item.Entries.Count() == 0 {
+			continue
+		}
 		winningEntry := rand.Intn(item.Entries.Count())
 		winner := database.User{
 			ID: item.Entries.Values()[winningEntry],

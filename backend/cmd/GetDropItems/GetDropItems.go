@@ -33,7 +33,7 @@ func GetDropItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (even
 	drop := database.Drop{
 		ID: dropId,
 	}
-	drop, err = drop.GetItems()
+	drop, err = drop.GetItems(false)
 	if err != nil {
 		return fw.Error(err)
 	}

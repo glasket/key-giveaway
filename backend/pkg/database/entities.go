@@ -206,10 +206,12 @@ func (d DropItemEntity) RemoveRaffleEntry(userId string) (newEntity DropItemEnti
 	return newEntity, nil
 }
 
-func (d DropItemEntity) ToItem() Item {
-	for i := range d.Items {
-		// Drops never need to have access to the key
-		d.Items[i].Key = ""
+func (d DropItemEntity) ToItem(withKeys bool) Item {
+	// withKeys required due to limitations with DynamoDB; can't project (list of map) attributes
+	if !withKeys {
+		for i := range d.Items {
+			d.Items[i].Key = ""
+		}
 	}
 	return Item{
 		ID:      keyToId(d.SK),
