@@ -140,15 +140,6 @@ Resources:
         - AttributeName: SK
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
-      GlobalSecondaryIndexes:
-        - IndexName: TokenSI
-          KeySchema:
-            - AttributeName: SK
-              KeyType: HASH
-          Projection:
-            NonKeyAttributes:
-              - Expiry
-            ProjectionType: INCLUDE
       TableName: KeyGiveaway
 
   AddRaffleEntryFunction:
