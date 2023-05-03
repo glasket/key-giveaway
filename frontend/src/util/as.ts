@@ -14,7 +14,6 @@ export const isType = <T extends object>(
     () => false,
     (obj) => pipe(
       getKeys(obj),
-      (k) => { return k; },
       (objKeys) => keys.every(v => objKeys.includes(v.toString()))
     )
   )
