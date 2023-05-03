@@ -1,7 +1,7 @@
-import { AddRaffleEntryRequest, AddRaffleEntryResponse, GetDropItemsResponse, GetDropsResponse, isLoginResponse, LoginRequest, LoginResponse, RemoveRaffleEntryRequest, RemoveRaffleEntryResponse } from '../Responses';
+import { AddRaffleEntryRequest, AddRaffleEntryResponse, GetDropItemsResponse, GetDropsResponse, GetWonItemsResponse, isLoginResponse, LoginRequest, LoginResponse, RemoveRaffleEntryRequest, RemoveRaffleEntryResponse } from '../Responses';
 import { STORAGE_KEY } from '../util/consts';
 
-import { Drop, dropFromJson, Item, itemFromJson, Json } from '../Models';
+import { Drop, dropFromJson, Game, Item, itemFromJson, Json } from '../Models';
 import { asType } from '../util/as';
 import { keys } from '../../transformers/ts-transformer-keys';
 import * as O from 'fp-ts/lib/Option';
@@ -43,6 +43,8 @@ type InvocationParams = {
 };
 
 const invoke = () => { };
+
+const gameSort = (a: Game, b: Game) => a.name.localeCompare(b.name);
 
 export const API = {
   Login: async (req: LoginRequest): Promise<LoginResponse> => {
@@ -89,7 +91,7 @@ export const API = {
     if (!(maybeDrops instanceof Array)) {
       throw new Error("GetDrops didn't return Array or null");
     }
-    return (maybeDrops as Array<Json<Drop>>).map(v => dropFromJson(v)).sort((a, b) => b.ends_at.getTime() - a.ends_at.getTime());
+    return (maybeDrops as Array<Json<Drop>>).map(v => dropFromJson(v)).sort((a, b) => a.ends_at.getTime() - b.ends_at.getTime());
   },
   GetDropItems: async (dropId: string): Promise<GetDropItemsResponse> => {
     const resp = await fetch(`${url}/drop/${dropId}`, {
@@ -107,7 +109,7 @@ export const API = {
     }
     return (maybeItems as Array<Json<Item>>).map(v => {
       let newV = itemFromJson(v);
-      newV.items.sort((a, b) => a.name.localeCompare(b.name));
+      newV.items.sort(gameSort);
       return newV;
     }).sort((a, b) => a.name.localeCompare(b.name));
   },
@@ -128,7 +130,7 @@ export const API = {
           id: item.id,
           drop_id: item.drop_id,
           name: item.name,
-          items: item.items,
+          items: item.items.sort(gameSort),
           entries: new Set(item.entries),
         } as AddRaffleEntryResponse)
       ));
@@ -150,10 +152,31 @@ export const API = {
           id: item.id,
           drop_id: item.drop_id,
           name: item.name,
-          items: item.items,
+          items: item.items.sort(gameSort),
           entries: new Set(item.entries),
         } as RemoveRaffleEntryResponse)
       ));
+  },
+  GetWonItems: async (): Promise<GetWonItemsResponse> => {
+    const resp = await fetch(`${url}/won-items`, {
+      method: 'GET',
+      ...fetchProps
+    });
+    if (resp.status !== 200) {
+      errorHandle(await resp.text());
+    }
+    const maybeItems = await resp.json();
+    if (maybeItems == null) {
+      return [];
+    }
+    if (!(maybeItems instanceof Array)) {
+      throw new Error("GetWonItems didn't return an Array or null");
+    }
+    return (maybeItems as Array<Json<Item>>).map(v => {
+      let newV = itemFromJson(v);
+      newV.items.sort((a, b) => a.name.localeCompare(b.name));
+      return newV;
+    });
   }
 };
 

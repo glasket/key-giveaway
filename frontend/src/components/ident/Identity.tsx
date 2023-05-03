@@ -9,9 +9,8 @@ import { keys } from '../../../transformers/ts-transformer-keys';
 import styles from './Identity.module.css';
 
 import * as E from 'fp-ts/lib/Either';
-import * as T from 'fp-ts/lib/Task';
 import * as TE from 'fp-ts/lib/TaskEither';
-import * as TO from 'fp-ts/lib/TaskOption';
+import { Link } from 'react-router-dom';
 
 type FacebookButtonProperties = {
   setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
@@ -100,6 +99,7 @@ export const Identity = ({ className }: IdentityProps) => {
             <img className="round" src={userData.picture} />
           </button>
           <div className={styles['dropdown']} hidden={!dropOpen}>
+            <Link to="won">Won Items</Link>
             <button onClick={logoutHandler} className="link">
               Logout
             </button>
