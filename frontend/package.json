@@ -9,13 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tippyjs/react": "^4.2.6",
     "fp-ts": "^2.13.1",
     "fp-ts-local-storage": "^1.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-modal": "^3.16.1",
     "react-router-dom": "^6.8.2",
-    "react-swipeable": "^7.0.0"
+    "react-swipeable": "^7.0.0",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.0.0",
