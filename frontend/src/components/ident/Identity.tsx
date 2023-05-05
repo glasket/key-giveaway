@@ -48,11 +48,7 @@ const FacebookButton = ({ setUserData }: FacebookButtonProperties) => {
   );
 };
 
-type IdentityProps = {
-  className?: string;
-};
-
-export const Identity = ({ className }: IdentityProps) => {
+export const Identity = () => {
   const [userData, setUserData] = useContext(UserContext);
   const [dropOpen, setDropOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);

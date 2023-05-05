@@ -1,4 +1,3 @@
-import { Row } from '../utility/Flex';
 import styles from './price.module.css';
 
 type Properties = {

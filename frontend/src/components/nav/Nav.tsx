@@ -2,8 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Identity } from '../ident/Identity';
 import { ThemeButton } from '../theme/Theme';
 import styles from './Nav.module.css';
-
-type Properties = {};
+import { Logo } from './Logo';
 
 const Nav = () => {
   const loc = useLocation();
@@ -21,7 +20,9 @@ const Nav = () => {
           &#x1F814;
         </button>
       )}
-      <div className={styles['logo']}>LOGO</div>
+      <div className={styles['logo']}>
+        <Logo />
+      </div>
       <div className={styles['identity']}>
         <ThemeButton />
         <Identity />

@@ -1,6 +1,6 @@
 // API Docs: https://developers.facebook.com/docs/javascript/reference/v16.0
 
-import { absurd, flow, pipe } from 'fp-ts/lib/function';
+import { flow, pipe } from 'fp-ts/lib/function';
 import * as O from 'fp-ts/lib/Option';
 import * as E from 'fp-ts/lib/Either';
 import * as T from 'fp-ts/lib/Task';
@@ -9,15 +9,10 @@ import * as TO from 'fp-ts/lib/TaskOption';
 import * as J from 'fp-ts/lib/Json';
 import { FacebookAuthResponse, FacebookLoginResponse, LoginResponse } from '../Responses';
 import { asType, asTypeC, isType } from './as';
-import { AppId, FB_REG_KEY, STORAGE_KEY } from './consts';
-import { Json, parse } from 'fp-ts/lib/Json';
+import { STORAGE_KEY } from './consts';
 import {
-  FacebookErrorResponse,
   FacebookMeResponse,
   FacebookSDK,
-  FacebookToken,
-  getLoginStatusResponse,
-  initParams,
 } from './facebook.types';
 import { keys } from '../../transformers/ts-transformer-keys';
 import { UserData } from '../context/UserContext';

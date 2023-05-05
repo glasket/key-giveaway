@@ -1,4 +1,4 @@
-import React, { createContext, Dispatch, SetStateAction } from 'react';
+import { createContext, Dispatch, SetStateAction } from 'react';
 import { FacebookToken } from '../util/facebook.types';
 
 export type UserData = {

@@ -37,13 +37,6 @@ switch (import.meta.env.MODE) {
     url = '/api';
 }
 
-type InvocationParams = {
-  url: string;
-  method: 'POST' | 'GET' | 'DELETE';
-};
-
-const invoke = () => { };
-
 const gameSort = (a: Game, b: Game) => a.name.localeCompare(b.name);
 
 export const API = {
