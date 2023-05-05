@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+﻿AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Backend API for game key giveaway site
 
@@ -68,6 +68,10 @@ Resources:
             OriginPath: '/Prod'
             CustomOriginConfig:
               OriginProtocolPolicy: https-only
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: '/index.html'
         DefaultCacheBehavior:
           TargetOriginId: FrontendBucket
           ViewerProtocolPolicy: redirect-to-https
@@ -332,7 +336,3 @@ Resources:
       Permissions:
         - Read
         - Write
-
-Outputs:
-  Website:
-    Value: !GetAtt FrontendDistribution.DomainName
