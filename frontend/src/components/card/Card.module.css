@@ -23,13 +23,13 @@
 
 .images {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 1fr);
+  grid-auto-rows: 1fr;
   grid-auto-flow: column;
   justify-items: stretch;
 
   > img {
     object-fit: cover;
-    max-height: 100%;
+    height: 100%;
   }
 
   > img:hover,

@@ -5,7 +5,7 @@
   left: 0;
 
   padding: var(--nav-height-padding) var(--nav-width-padding);
-  align-items: stretch;
+  align-items: center;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   height: var(--nav-height);
@@ -30,6 +30,13 @@
 .logo {
   grid-column: 2;
   justify-self: center;
+  height: 100%;
+
+  > svg {
+    height: 95%;
+    max-width: 100%;
+    fill: var(--lighter);
+  }
 }
 .identity {
   grid-column: 3;
@@ -39,4 +46,11 @@
   gap: 0.8rem;
   justify-content: right;
   position: relative;
+}
+
+@media screen and (max-width: 480px) {
+  .nav {
+    grid-template-columns: auto auto 1fr !important;
+    gap: 1rem;
+  }
 }
