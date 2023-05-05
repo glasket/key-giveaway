@@ -1,4 +1,4 @@
-﻿AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Backend API for game key giveaway site
 
@@ -56,6 +56,8 @@ Resources:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - giveaway.glasket.com
         Origins:
           - Id: FrontendBucket
             DomainName: !GetAtt FrontendBucket.RegionalDomainName
@@ -83,6 +85,10 @@ Resources:
               QueryString: true
         Enabled: true
         DefaultRootObject: index.html
+        ViewerCertificate:
+          AcmCertificateArn: !Sub 'arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/781873b4-4fe0-436f-a92e-f1d156ea0b46'
+          MinimumProtocolVersion: TLSv1
+          SslSupportMethod: sni-only
 
   FrontendBucketPolicy:
     Type: AWS::S3::BucketPolicy
