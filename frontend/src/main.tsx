@@ -91,7 +91,10 @@ window.fbAsyncInit = function () {
               .find((c) => c.trim().startsWith(COOKIE_KEY)),
             O.fromNullable,
             O.match(
-              () => localStorage.removeItem(STORAGE_KEY),
+              () => {
+                localStorage.removeItem(STORAGE_KEY);
+                register(USER_REGISTRY_KEY, null);
+              },
               (c) => register(USER_REGISTRY_KEY, userData)
             )
           )
