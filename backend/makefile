@@ -1,14 +1,17 @@
 LDFLAGS = -s -w
 COMP = GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="$(LDFLAGS)" -o
+BLD = bin/lambda/AddRaffleEntry bin/lambda/RemoveRaffleEntry bin/lambda/GetDropItems bin/lambda/GetDrops bin/lambda/GetWonItems bin/lambda/HandleRaffle bin/lambda/Login bin/lambda/Logout bin/lambda/Ping
 DEPLOY = deploy/AddRaffleEntry.zip deploy/RemoveRaffleEntry.zip deploy/GetDropItems.zip deploy/GetDrops.zip deploy/GetWonItems.zip deploy/HandleRaffle.zip deploy/Login.zip deploy/Logout.zip deploy/Ping.zip
 PKG = $(shell find ./pkg -name '*.go')
 DEPLOYCMD = chmod +x $?; zip -j $@ $?
 
-.PHONY: deploy build-cli clean
+.PHONY: all build build-cli deploy clean
 
 all: deploy build-cli
 
 deploy: $(DEPLOY)
+
+build: $(BLD)
 
 build-cli:
 	go build -o bin/cli ./cli/...
