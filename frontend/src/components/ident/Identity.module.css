@@ -1,11 +1,24 @@
-.fb-prof-btn {
-  height: calc(var(--nav-height));
-  padding: unset;
+.fb-btn {
+  align-items: center;
+  background-color: #2374f2;
+  color: white;
+  display: flex;
+  font-weight: bold;
+  height: 80%;
+  > img {
+    height: 1.5em;
+    margin-right: 0.6rem;
+  }
 }
 
-.fb-prof-btn img {
+.fb-prof-btn {
   height: 100%;
-  border: 3px solid var(--normal);
+  padding: unset;
+
+  > img {
+    height: 100;
+    border: 3px solid var(--normal);
+  }
 }
 
 .dropdown {

@@ -7,6 +7,7 @@ import { asTypeC } from '../../util/as';
 import { FacebookApi } from '../../util/facebook';
 import { keys } from '../../../transformers/ts-transformer-keys';
 import styles from './Identity.module.css';
+import fblogo from '../../assets/facebook.svg';
 
 import * as E from 'fp-ts/lib/Either';
 import * as TE from 'fp-ts/lib/TaskEither';
@@ -42,8 +43,12 @@ const FacebookButton = ({ setUserData }: FacebookButtonProperties) => {
   }, [waitForFBSDK]);
 
   return (
-    <button disabled={loginFunc === undefined} onClick={loginFunc}>
-      Login with Facebook
+    <button
+      className={styles['fb-btn']}
+      disabled={loginFunc === undefined}
+      onClick={loginFunc}
+    >
+      <img src={fblogo} /> Login
     </button>
   );
 };
