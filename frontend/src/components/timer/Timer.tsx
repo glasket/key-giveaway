@@ -60,10 +60,10 @@ export const Timer = ({ end }: TimerProps) => {
   }, []);
 
   let components = [
-    <Fragment key="day">{pluralizer(days, 'day')} </Fragment>,
-    <Fragment key="hour">{pluralizer(hours, 'hour')} </Fragment>,
-    <Fragment key="minute">{pluralizer(minutes, 'minute')} </Fragment>,
-    <Fragment key="second">{pluralizer(seconds, 'second')}</Fragment>,
+    <Fragment key="day">{days.toString().padStart(2, '0')}:</Fragment>,
+    <Fragment key="hour">{hours.toString().padStart(2, '0')}:</Fragment>,
+    <Fragment key="minute">{minutes.toString().padStart(2, '0')}:</Fragment>,
+    <Fragment key="second">{seconds.toString().padStart(2, '0')}</Fragment>,
   ];
 
   if (days === 0) {

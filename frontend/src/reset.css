@@ -60,3 +60,7 @@ select,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+input {
+  font: inherit;
+}

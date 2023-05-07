@@ -5,6 +5,7 @@ import { Card } from '../../components/card/Card';
 import { Timer } from '../../components/timer/Timer';
 import { Drop } from '../../Models';
 import { Column } from '../../components/utility/Flex';
+import { Toggle } from '../../components/inputs/Toggle';
 
 export const Drops = () => {
   const [drops, setDrops] = useState<Array<Drop>>([]);
@@ -24,16 +25,9 @@ export const Drops = () => {
 
   return (
     <>
-      <span>
-        <input
-          type="checkbox"
-          checked={old}
-          onChange={() => setOld(!old)}
-          disabled={loading}
-          id="include_old_drops"
-        />
-        <label htmlFor="include_old_drops">Include Expired?</label>
-      </span>
+      <Toggle state={[old, setOld]} className="ml-auto">
+        Include Expired?
+      </Toggle>
       {loading ? (
         <div>LOADING</div>
       ) : (

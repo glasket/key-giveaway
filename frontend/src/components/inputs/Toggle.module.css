@@ -1,0 +1,51 @@
+.container {
+  --radius: 0.75em;
+  --diameter: calc(var(--radius) * 2);
+  --width: calc(var(--diameter) * 2);
+  --transition-time: 300ms;
+
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: 0.6rem;
+
+  > label {
+    position: relative;
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
+    width: var(--width);
+    height: var(--diameter);
+    border: 2px solid transparent;
+
+    > input {
+      appearance: none;
+      box-sizing: content-box;
+      width: 3em;
+      height: 1.5em;
+      background-color: var(--darker);
+      border: 2px solid var(--normal);
+      filter: saturate(0.3);
+      border-radius: calc(var(--radius) + 4px);
+      transition: filter var(--transition-time) ease;
+    }
+    > input:checked {
+      filter: saturate(1);
+    }
+
+    > input + div {
+      position: absolute;
+      left: 2px;
+      display: block;
+      grid-column: span 2;
+      height: var(--diameter);
+      width: var(--diameter);
+      background-color: var(--lighter);
+      border-radius: 50%;
+      transition: transform var(--transition-time) ease;
+    }
+    > input:checked + div {
+      transform: translate(calc(var(--diameter) - 4px), 0);
+    }
+  }
+}

@@ -7,7 +7,7 @@
   width: 100%;
   margin: 0 auto;
   margin-top: calc(var(--nav-height) + 2 * var(--nav-height-padding));
-  padding: 0.8rem 0;
+  padding: 0.8rem 1.6rem;
 }
 
 .footer {
