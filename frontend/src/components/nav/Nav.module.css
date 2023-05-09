@@ -41,6 +41,7 @@
 .identity {
   grid-column: 3;
   display: flex;
+  height: 100%;
   align-items: center;
   flex-direction: row;
   gap: 0.8rem;

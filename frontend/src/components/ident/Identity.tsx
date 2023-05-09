@@ -90,7 +90,7 @@ export const Identity = () => {
   return (
     <>
       {userData !== null ? (
-        <div ref={ref}>
+        <div className="round h-100" ref={ref}>
           <button
             className={['round transparent', styles['fb-prof-btn']]
               .join(' ')

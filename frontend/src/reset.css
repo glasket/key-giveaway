@@ -61,6 +61,6 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
-input {
+input[type='checkbox'] {
   font: inherit;
 }
