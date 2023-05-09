@@ -54,19 +54,10 @@ export const Drop = () => {
     const newItem = await (remove
       ? API.RemoveEntry(itemKey)
       : API.AddEntry(itemKey));
-    // setItems((items) => {
-    //   items[items.findIndex((val) => val.id === itemKey.item_id)] = newItem;
-    //   return items;
-    // });
-    setItems(
-      items.map((v) => {
-        if (v.id === newItem.id) {
-          return newItem;
-        } else {
-          return v;
-        }
-      })
-    );
+
+    setItems((is) => {
+      return is.map((i) => (i.id === newItem.id ? newItem : i));
+    });
   };
 
   const itemsElements = items
