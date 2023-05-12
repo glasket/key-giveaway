@@ -263,13 +263,14 @@ func (i Item) HandleRaffleEntry(userId string, raffleFunc func(e DropItemEntity,
 }
 
 type GameItem struct {
-	Name         string `json:"name"`
-	AppId        string `json:"appId"` // Steam App ID
-	Key          string `json:"key"`
-	ReviewScore  int16  `json:"review_score"`
-	Price        int    `json:"price"`
-	InitialPrice int    `json:"initial_price"`
-	Discount     int    `json:"discount"`
+	Name          string   `json:"name"`
+	AppId         string   `json:"appId"` // Steam App ID
+	Key           string   `json:"key"`
+	ReviewScore   int16    `json:"review_score"`
+	Price         int      `json:"price"`
+	InitialPrice  int      `json:"initial_price"`
+	Discount      int      `json:"discount"`
+	LockedRegions []string `json:"locked_regions,omitempty" dynamodbav:",omitempty,stringset"`
 }
 
 type steamSpyResponse struct {

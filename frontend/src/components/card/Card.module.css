@@ -1,9 +1,27 @@
 .card {
   display: grid;
+  position: relative;
   grid-template-rows: calc(min(var(--drop-card-width), 95vw) * 0.469) auto;
   background-color: var(--darker);
   border-radius: var(--br);
   overflow: hidden;
+}
+
+.card__info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0.6rem;
+  right: 0.8rem;
+  background-color: var(--darkest);
+  border: 3px solid var(--darker);
+  aspect-ratio: 1;
+  width: 3.2rem;
+
+  font-size: 1.2em;
+  font-weight: 700;
+  color: var(--lightest);
 }
 
 .clickable {
@@ -44,7 +62,7 @@
 
 .card--game > .content {
   display: grid;
-  grid-template-rows: auto auto;
+  grid-auto-rows: auto;
   gap: 0.4rem;
 
   & > *:nth-child(1) {

@@ -6,6 +6,7 @@ import { useSwipeable } from 'react-swipeable';
 import { Price } from '../price/price';
 import { Row } from '../utility/Flex';
 import { Review } from '../review/Review';
+import Tippy from '@tippyjs/react';
 
 type BaseProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
@@ -111,6 +112,17 @@ export const GameCard = ({ game }: { game: Game }) => (
         />
         <Review score={game.review_score} />
       </Row>
+      {game.locked_regions.size !== 0 && (
+        <Tippy
+          content={`Restricted Regions: ${Array.from(
+            game.locked_regions.values()
+          )
+            .sort()
+            .join(', ')}`}
+        >
+          <div className={`round ${styles['card__info']}`}>!</div>
+        </Tippy>
+      )}
     </Card>
   </a>
 );

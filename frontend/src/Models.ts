@@ -59,7 +59,7 @@ export const itemFromJson = (json: Json<Item>): Item => {
       id: json.id,
       drop_id: json.drop_id,
       name: json.name,
-      items: json.items,
+      items: json.items.map(gameFromJson),
       entries: new Set(json.entries)
     };
   }
@@ -74,6 +74,7 @@ export type Game = {
   readonly price: number;
   readonly initial_price: number;
   readonly discount: number;
+  readonly locked_regions: Set<string>;
 };
 
 export const gameFromJson = (json: Json<Game>): Game => {
@@ -84,9 +85,19 @@ export const gameFromJson = (json: Json<Game>): Game => {
     typeof json.review_score === 'number' &&
     typeof json.price === 'number' &&
     typeof json.initial_price === 'number' &&
-    typeof json.discount === 'number'
+    typeof json.discount === 'number' &&
+    (json.locked_regions instanceof Array || json.locked_regions === undefined)
   ) {
-    return json;
+    return {
+      name: json.name,
+      appId: json.appId,
+      key: json.key,
+      review_score: json.review_score,
+      price: json.price,
+      initial_price: json.initial_price,
+      discount: json.discount,
+      locked_regions: new Set(json.locked_regions)
+    };
   }
   throw new Error('Not a game');
 };
