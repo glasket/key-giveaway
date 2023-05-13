@@ -18,6 +18,9 @@
   grid-column: 3;
   align-self: center;
   justify-self: end;
+  aspect-ratio: 1;
+  width: 3.2rem;
+  font-weight: 600;
 }
 
 .modal__games {
