@@ -39,7 +39,6 @@ export const Drop = () => {
       ),
     [state]
   );
-  console.log(drop);
 
   const getItems = useCallback(async () => {
     setItems(await API.GetDropItems(dropId));

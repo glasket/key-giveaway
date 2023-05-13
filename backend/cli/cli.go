@@ -162,10 +162,8 @@ func main() {
 			if schedOut != nil {
 				log.Debug().Interface("schedule_output", schedOut).Msg("")
 			}
-		case removeDrop:
-			log.Error().Str("job_action", job.Action).Msg("Not implemented")
 		default:
-			log.Error().Str("job_action", job.Action).Msg("Invalid job action")
+			log.Error().Str("job_action", job.Action).Msg("Job action doesn't exist")
 		}
 	}
 }

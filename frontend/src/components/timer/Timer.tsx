@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, Fragment } from 'react';
-import { pluralizer } from '../../util/pluralizer';
 
 type TimerProps = {
   end: Date;
