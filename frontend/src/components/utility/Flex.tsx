@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { HTMLProps, PropsWithoutRef, ReactNode } from 'react';
 import styles from './Flex.module.css';
 
 type FlexProps = {
@@ -17,7 +17,7 @@ type FlexProps = {
   gap?: string;
   className?: string | undefined;
   Element?: 'div' | 'ul' | 'span' | 'article' | 'section' | 'footer';
-};
+} & PropsWithoutRef<HTMLProps<HTMLElement>>;
 
 export const Flex = ({
   children,
@@ -28,8 +28,10 @@ export const Flex = ({
   gap,
   className,
   Element = 'div',
+  ...props
 }: FlexProps) => (
   <Element
+    {...props}
     className={`flex
     ${styles[direction ?? 'row']}
     ${styles[wrap ? 'wrap' : 'nowrap']}
