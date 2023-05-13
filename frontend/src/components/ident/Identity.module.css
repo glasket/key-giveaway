@@ -22,8 +22,8 @@
 }
 
 .dropdown {
-  --hpad: 0.6rem;
-  --wpad: 0.8rem;
+  --hpad: 0.8rem;
+  --wpad: 1rem;
 
   position: absolute;
   top: calc(var(--nav-height) + var(--nav-height-padding) + 0.4rem);

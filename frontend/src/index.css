@@ -174,3 +174,7 @@ ul {
   grid-row: 3;
   grid-column: 1 / -1;
 }
+
+[hidden] {
+  display: none !important;
+}

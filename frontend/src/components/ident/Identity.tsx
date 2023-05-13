@@ -12,6 +12,7 @@ import fblogo from '../../assets/facebook.svg';
 import * as E from 'fp-ts/lib/Either';
 import * as TE from 'fp-ts/lib/TaskEither';
 import { Link } from 'react-router-dom';
+import { Column } from '../utility/Flex';
 
 type FacebookButtonProperties = {
   setUserData: React.Dispatch<React.SetStateAction<UserData | null>>;
@@ -99,12 +100,18 @@ export const Identity = () => {
           >
             <img className="round" src={userData.picture} />
           </button>
-          <div className={styles['dropdown']} hidden={!dropOpen}>
+          <Column
+            className={styles['dropdown']}
+            hidden={!dropOpen}
+            align="center"
+            Element="div"
+            gap="0.8rem"
+          >
             <Link to="won">Won Items</Link>
             <button onClick={logoutHandler} className="link">
               Logout
             </button>
-          </div>
+          </Column>
         </div>
       ) : (
         <FacebookButton setUserData={setUserData} />
