@@ -3,6 +3,7 @@ import { Identity } from '../ident/Identity';
 import { ThemeButton } from '../theme/Theme';
 import styles from './Nav.module.css';
 import { Logo } from './Logo';
+import { Icon } from '../utility/Icon';
 
 const Nav = () => {
   const loc = useLocation();
@@ -17,7 +18,7 @@ const Nav = () => {
     <nav className={styles['nav']}>
       {isRoot || (
         <button className={styles['back']} onClick={returnHome}>
-          &#x1F814;
+          <Icon icon="arrow_back" />
         </button>
       )}
       <div className={styles['logo']}>
