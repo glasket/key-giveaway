@@ -91,7 +91,11 @@ export const Card = ({
 };
 
 export const GameCard = ({ game }: { game: Game }) => (
-  <a href={`https://store.steampowered.com/app/${game.appId}`} target="_blank">
+  <a
+    className={styles['link--game']}
+    href={`https://store.steampowered.com/app/${game.appId}`}
+    target="_blank"
+  >
     <Card
       clickable
       headerImages={[headerImageString(game.appId)]}
