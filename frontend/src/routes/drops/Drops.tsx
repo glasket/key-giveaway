@@ -24,7 +24,7 @@ export const Drops = () => {
   }, [getDrops]);
 
   return (
-    <>
+    <Column gap="0.8rem">
       <Toggle state={[old, setOld]} className="ml-auto">
         Include Expired?
       </Toggle>
@@ -52,6 +52,6 @@ export const Drops = () => {
           )}
         </>
       )}
-    </>
+    </Column>
   );
 };
