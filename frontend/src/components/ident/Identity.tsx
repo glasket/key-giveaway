@@ -86,6 +86,7 @@ export const Identity = () => {
         }
       )
     );
+    setDropOpen(false);
   }, []);
 
   return (
@@ -107,7 +108,9 @@ export const Identity = () => {
             Element="div"
             gap="0.8rem"
           >
-            <Link to="won">Won Items</Link>
+            <Link to="won" onClick={() => setDropOpen(false)}>
+              Won Items
+            </Link>
             <button onClick={logoutHandler} className="link">
               Logout
             </button>
