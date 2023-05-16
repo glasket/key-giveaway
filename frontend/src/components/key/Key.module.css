@@ -1,0 +1,36 @@
+.container {
+  display: flex;
+  width: fit-content;
+  overflow: hidden;
+  font-size: inherit;
+
+  background-color: var(--lighter);
+  border-radius: var(--br);
+  border: 2px solid var(--darkest);
+  box-shadow: 0 0.2rem 0.8rem #0006;
+}
+
+.container__key {
+  color: var(--bg);
+  padding: 0.4rem 0.6rem;
+  font-weight: 600;
+}
+
+.container__copy {
+  height: 100%;
+  width: auto;
+  aspect-ratio: 1;
+  border-left: 2px solid var(--darkest);
+  border-radius: 0;
+  margin-left: auto;
+}
+
+.container > a,
+.container > span,
+.container > button > span {
+  font-size: 1em;
+}
+
+.container > button {
+  font-size: 1.2em;
+}

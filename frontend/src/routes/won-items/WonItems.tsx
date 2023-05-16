@@ -4,6 +4,7 @@ import { Item } from '../../Models';
 import { API } from '../../api/api';
 import { Column } from '../../components/utility/Flex';
 import { Card } from '../../components/card/Card';
+import { Key } from '../../components/key/Key';
 
 const WonItems = () => {
   const [user, _] = useContext(UserContext);
@@ -22,28 +23,32 @@ const WonItems = () => {
   }
 
   return (
-    <Column>
-      <ul>
-        {items.length !== 0 ? (
-          items.map((i) => (
-            <li key={i.id}>
-              <Card>
-                <h4>{i.name}</h4>
-                <ul>
+    <Column Element="ul" gap="1.2rem">
+      {items.length !== 0 ? (
+        items.map((i) => (
+          <li key={i.id}>
+            <Card>
+              <Column gap="0.8rem">
+                <h3>{i.name}</h3>
+                <Column Element="ul" gap="0.8rem">
                   {i.items.map((g) => (
-                    <Column key={i.id + g.appId}>
-                      <h5>{g.name}</h5>
-                      <div>{g.key}</div>
-                    </Column>
+                    <li key={i.id + g.key}>
+                      <Card>
+                        <Column gap="0.6rem" align="center">
+                          <h4>{g.name}</h4>
+                          <Key gameKey={g.key} />
+                        </Column>
+                      </Card>
+                    </li>
                   ))}
-                </ul>
-              </Card>
-            </li>
-          ))
-        ) : (
-          <h4>You haven't won anything.</h4>
-        )}
-      </ul>
+                </Column>
+              </Column>
+            </Card>
+          </li>
+        ))
+      ) : (
+        <h4>You haven't won anything.</h4>
+      )}
     </Column>
   );
 };
