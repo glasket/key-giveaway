@@ -5,6 +5,9 @@
   background-color: var(--darker);
   border-radius: var(--br);
   overflow: hidden;
+  border: 1px solid var(--darkest);
+  box-shadow: 0 0.2rem 0.8rem #0006;
+  padding: 0.4rem;
 }
 
 .card__info {

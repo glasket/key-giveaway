@@ -65,17 +65,28 @@ body {
 }
 
 h1 {
-  font-size: 3.2em;
+  font-size: 2.6em;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
 }
 h2 {
+  font-size: 2em;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
 }
 h3 {
+  font-size: 1.3em;
   font-weight: 600;
-  font-size: 1.2em;
+  margin-bottom: 0.8rem;
 }
 h4 {
   font-weight: 500;
-  font-size: 1.125em;
+  font-size: 1.2em;
+  margin-bottom: 0.4rem;
+}
+
+p + p {
+  margin-top: 0.8rem;
 }
 
 button {
@@ -121,6 +132,10 @@ img {
 
 ul {
   list-style: none;
+}
+
+dl > dt {
+  font-weight: bold;
 }
 
 #root {
