@@ -74,6 +74,43 @@ func (u UserEntity) Save() error {
 	return err
 }
 
+func (u UserEntity) Delete() error {
+	_, err := db.DeleteItem(ctx, &dynamodb.DeleteItemInput{
+		Key:       getEntityKey(u),
+		TableName: TableName,
+	})
+	return err
+}
+
+func (u UserEntity) DeleteItems() error {
+	expr, err := expression.NewBuilder().
+		WithKeyCondition(
+			expression.KeyAnd(
+				expression.KeyEqual(expression.Key("PK"), expression.Value(u.PK)),
+				expression.KeyBeginsWith(expression.Key("SK"), string(itemEntityTag)),
+			)).
+		Build()
+	if err != nil {
+		return err
+	}
+	var resp *dynamodb.QueryOutput
+	resp, err = db.Query(ctx, &dynamodb.QueryInput{
+		TableName:                 TableName,
+		KeyConditionExpression:    expr.KeyCondition(),
+		ExpressionAttributeNames:  expr.Names(),
+		ExpressionAttributeValues: expr.Values(),
+	})
+	if err != nil {
+		return err
+	}
+	var items []UserItemEntity
+	err = attributevalue.UnmarshalListOfMaps(resp.Items, &items)
+	if err != nil {
+		return err
+	}
+	return BatchDelete(items)
+}
+
 func (u UserEntity) getKey() Key { return u.Key }
 
 type UserItemEntity struct {
@@ -101,6 +138,8 @@ func (e *UserItemEntity) ToItem() Item {
 		InsertTime: e.InsertTime,
 	}
 }
+
+func (e UserItemEntity) getKey() Key { return e.Key }
 
 type DropEntity struct {
 	Key
@@ -235,6 +274,30 @@ func BatchWrite[T any](items []T) error {
 		for _, item := range items[start:end] {
 			i := getEntityItem(item)
 			reqs = append(reqs, types.WriteRequest{PutRequest: &types.PutRequest{Item: i}})
+		}
+		_, err := db.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
+			RequestItems: map[string][]types.WriteRequest{*TableName: reqs},
+		})
+		if err != nil {
+			return err
+		}
+		start = end
+		end += batchSize
+	}
+	return nil
+}
+
+func BatchDelete[T entity](items []T) error {
+	start := 0
+	end := start + batchSize
+	for start < len(items) {
+		var reqs []types.WriteRequest
+		if end > len(items) {
+			end = len(items)
+		}
+		for _, item := range items[start:end] {
+			k := getEntityKey(item)
+			reqs = append(reqs, types.WriteRequest{DeleteRequest: &types.DeleteRequest{Key: k}})
 		}
 		_, err := db.BatchWriteItem(ctx, &dynamodb.BatchWriteItemInput{
 			RequestItems: map[string][]types.WriteRequest{*TableName: reqs},

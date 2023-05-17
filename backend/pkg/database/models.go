@@ -76,6 +76,15 @@ func (u *User) GetItems() error {
 	return nil
 }
 
+func (u *User) Delete() error {
+	e := BuildUserEntity(*u)
+	err := e.Delete()
+	if err != nil {
+		return err
+	}
+	return e.DeleteItems()
+}
+
 type Drop struct {
 	ID    string    `json:"id"`
 	Name  string    `json:"name"`

@@ -88,7 +88,9 @@ func StartNoSession(ctx context.Context, req events.APIGatewayV2HTTPRequest) (*h
 
 func Ok(w *core.ProxyResponseWriterV2, resp []byte) (events.APIGatewayV2HTTPResponse, error) {
 	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	if resp != nil {
+		w.Write(resp)
+	}
 	return w.GetProxyResponse()
 }
 
