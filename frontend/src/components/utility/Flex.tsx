@@ -17,7 +17,7 @@ type FlexProps = {
   gap?: string;
   className?: string | undefined;
   Element?: 'div' | 'ul' | 'li' | 'span' | 'article' | 'section' | 'footer';
-} & PropsWithoutRef<HTMLProps<HTMLElement>>;
+} & Omit<PropsWithoutRef<HTMLProps<HTMLElement>>, 'wrap'>;
 
 export const Flex = ({
   children,
