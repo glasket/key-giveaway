@@ -27,6 +27,10 @@ func Logout(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.API
 	// Nil request means the session was already invalidated in fw.Start()
 	if request != nil {
 		session.Options.MaxAge = -1
+		err = session.Save(request, writer)
+		if err != nil {
+			return fw.Error(err)
+		}
 	}
 	writer.WriteHeader(http.StatusOK)
 	return writer.GetProxyResponse()

@@ -37,6 +37,11 @@ func deleteUser(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events
 	if err != nil {
 		return fw.Error(err)
 	}
+	session.Options.MaxAge = -1
+	err = session.Save(request, writer)
+	if err != nil {
+		fw.Error(err)
+	}
 	return fw.Ok(writer, nil)
 }
 
