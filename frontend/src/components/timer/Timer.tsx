@@ -5,54 +5,46 @@ type TimerProps = {
 };
 
 const secInMs = 1000;
-const minInMs = secInMs * 60;
-const hourInMs = minInMs * 60;
-const dayInMs = hourInMs * 24;
+const minInSec = 60;
+const hourInMin = 60;
+const dayInHour = 24;
 
-const secondsMax = 59;
-const minutesMax = 59;
-const hoursMax = 23;
+const formatTimeLeft = (
+  timeLeft: number
+): { days: number; hours: number; minutes: number; seconds: number } => {
+  const sec = Math.floor(timeLeft / secInMs);
+  const min = Math.floor(sec / minInSec);
+  const hour = Math.floor(min / hourInMin);
+  const day = Math.floor(hour / dayInHour);
+  return {
+    days: day,
+    hours: hour % dayInHour,
+    minutes: min % hourInMin,
+    seconds: sec % minInSec,
+  };
+};
 
 export const Timer = ({ end }: TimerProps) => {
   const timeInMs = useRef(end.getTime() - Date.now());
   const [expired, setExpired] = useState(timeInMs.current < 0);
-  const [timeRemaining, setTimeRemaining] = useState({
-    days: Math.floor(timeInMs.current / dayInMs),
-    hours: Math.floor((timeInMs.current % dayInMs) / hourInMs),
-    minutes: Math.floor(((timeInMs.current % dayInMs) % hourInMs) / minInMs),
-    seconds: Math.floor(
-      (((timeInMs.current % dayInMs) % hourInMs) % minInMs) / secInMs
-    ),
-  });
+  const [timeRemaining, setTimeRemaining] = useState(
+    formatTimeLeft(timeInMs.current)
+  );
 
   const { days, hours, minutes, seconds } = timeRemaining;
 
   useEffect(() => {
+    if (expired) {
+      return;
+    }
     const interval = setInterval(() => {
-      setTimeRemaining(({ days, hours, minutes, seconds }) => {
-        seconds -= 1;
-        if (seconds >= 0) {
-          return { days, hours, minutes, seconds };
-        }
-        seconds = secondsMax;
-        minutes -= 1;
-        if (minutes >= 0) {
-          return { days, hours, minutes, seconds };
-        }
-        minutes = minutesMax;
-        hours -= 1;
-        if (hours >= 0) {
-          return { days, hours, minutes, seconds };
-        }
-        hours = hoursMax;
-        days -= 1;
-        if (days >= 0) {
-          return { days, hours, minutes, seconds };
-        }
+      timeInMs.current = end.getTime() - Date.now();
+      if (timeInMs.current < 0) {
         setExpired(true);
         clearInterval(interval);
-        return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-      });
+        return;
+      }
+      setTimeRemaining(formatTimeLeft(timeInMs.current));
     }, secInMs);
 
     return () => clearInterval(interval);
@@ -75,5 +67,9 @@ export const Timer = ({ end }: TimerProps) => {
     }
   }
 
-  return expired ? <h3>Expired</h3> : <div>{components}</div>;
+  return expired ? (
+    <span className="bold">Expired</span>
+  ) : (
+    <div>{components}</div>
+  );
 };
