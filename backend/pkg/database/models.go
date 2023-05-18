@@ -78,11 +78,11 @@ func (u *User) GetItems() error {
 
 func (u *User) Delete() error {
 	e := BuildUserEntity(*u)
-	err := e.Delete()
+	err := e.DeleteItems()
 	if err != nil {
 		return err
 	}
-	return e.DeleteItems()
+	return e.Delete()
 }
 
 type Drop struct {
