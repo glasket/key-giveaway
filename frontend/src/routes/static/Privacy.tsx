@@ -4,7 +4,7 @@ import { Column } from '../../components/utility/Flex';
 const url = 'https://giveaway.glasket.com';
 
 export const Privacy = () => (
-  <Column>
+  <Column gap="0.8rem">
     <h1>Privacy Policy</h1>
     <p>Last updated: May 16, 2023</p>
     <p>
@@ -12,7 +12,7 @@ export const Privacy = () => (
       by the Service, alongside detailing Your rights under law.
     </p>
     <Column Element="ul" gap="1.8rem">
-      <Column Element="li">
+      <Column Element="li" gap="0.4rem">
         <h2>Interpretation and Definitions</h2>
         <h3>Intepretation</h3>
         <p>
@@ -54,7 +54,7 @@ export const Privacy = () => (
         </ul>
       </Column>
 
-      <Column Element="li">
+      <Column Element="li" gap="0.4rem">
         <h2>Collection and Use</h2>
         <h3>Collected Data</h3>
         <Column>
@@ -97,7 +97,7 @@ export const Privacy = () => (
         </p>
       </Column>
 
-      <Column Element="li">
+      <Column Element="li" gap="0.4rem">
         <h2>Data Deletion</h2>
         <p>
           Your Personal Data can be deleted <Link to="delete">here</Link>. This
@@ -106,7 +106,7 @@ export const Privacy = () => (
         </p>
       </Column>
 
-      <Column Element="li">
+      <Column Element="li" gap="0.4rem">
         <h2>Children's Privacy</h2>
         <p>
           This Service does not address any users under the age of 13. If we
@@ -115,7 +115,7 @@ export const Privacy = () => (
         </p>
       </Column>
 
-      <Column Element="li">
+      <Column Element="li" gap="0.4rem">
         <h2>Links to Other Websites</h2>
         <p>
           Our Service may contain links to other websites that are operated by
@@ -129,7 +129,7 @@ export const Privacy = () => (
         </p>
       </Column>
 
-      <Column Element="li">
+      <Column Element="li" gap="0.4rem">
         <h2>Changes to this Privacy Policy</h2>
         <p>
           The Privacy Policy may be updated at any time. All changes to the
@@ -146,7 +146,7 @@ export const Privacy = () => (
         </p>
       </Column>
 
-      <Column Element="li">
+      <Column Element="li" gap="0.4rem">
         <h2>Contact</h2>
         <p>
           If you have any questions, feel free to contact us{' '}
