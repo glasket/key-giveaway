@@ -85,6 +85,10 @@ p + p {
   margin-top: 0.8rem;
 }
 
+em {
+  font-weight: bolder;
+}
+
 button {
   display: flex;
   align-items: center;

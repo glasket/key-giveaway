@@ -19,6 +19,7 @@ import { pipe } from 'fp-ts/lib/function';
 import { FacebookApi } from './util/facebook';
 import ReactModal from 'react-modal';
 import { Privacy } from './routes/static/Privacy';
+import { Delete } from './routes/delete/Delete';
 
 declare global {
   interface Window {
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
       {
         path: 'privacy',
         element: <Privacy />,
+      },
+      {
+        path: 'delete',
+        element: <Delete />,
       },
     ],
   },

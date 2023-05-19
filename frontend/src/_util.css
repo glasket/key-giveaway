@@ -46,3 +46,11 @@
 .bold {
   font-weight: bold;
 }
+
+.text-center {
+  text-align: center;
+}
+
+.warn {
+  background-color: var(--warn);
+}

@@ -170,6 +170,17 @@ export const API = {
       newV.items.sort((a, b) => a.name.localeCompare(b.name));
       return newV;
     });
+  },
+  DeleteUser: async (): Promise<boolean> => {
+    const resp = await fetch(`${url}/user`, {
+      method: 'DELETE',
+      ...fetchProps
+    });
+    if (resp.status !== 200) {
+      console.error(await resp.text());
+      return false;
+    }
+    return true;
   }
 };
 

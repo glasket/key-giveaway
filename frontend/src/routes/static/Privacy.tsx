@@ -100,7 +100,7 @@ export const Privacy = () => (
       <Column Element="li" gap="0.4rem">
         <h2>Data Deletion</h2>
         <p>
-          Your Personal Data can be deleted <Link to="delete">here</Link>. This
+          Your Personal Data can be deleted <Link to="/delete">here</Link>. This
           deletion will remove all of Your Personal Data which has been stored
           by the Service.
         </p>
