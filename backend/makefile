@@ -1,7 +1,7 @@
 LDFLAGS = -s -w
 COMP = GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="$(LDFLAGS)" -o $@ $<
 PKG = $(shell find ./pkg -name '*.go')
-DEPLOYCMD = chmod +x $?; zip -j $@ $?
+DEPLOYCMD = chmod +x $?; zip -j $@ $<
 
 names = $(shell ls cmd)
 build_targets = $(addprefix bin/cmd/, $(names))
@@ -9,7 +9,7 @@ deploy_targets = $(addsuffix .zip, $(addprefix deploy/, $(names)))
 
 .PHONY: all build cli deploy clean
 
-all: deploy build-cli
+all: deploy cli
 
 deploy: $(deploy_targets)
 
@@ -26,5 +26,6 @@ bin/cli/cli: cli/cli.go $(PKG)
 $(deploy_targets): deploy/%.zip: bin/cmd/%
 	$(DEPLOYCMD)
 
-$(build_targets): bin/cmd/%: $(wildcard cmd/%/*) $(PKG)
+.SECONDEXPANSION:
+$(build_targets): bin/cmd/%: cmd/$$*/$$*.go $(PKG)
 	$(COMP)
