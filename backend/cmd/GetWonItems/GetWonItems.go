@@ -40,6 +40,7 @@ func GetWonItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (event
 		return fw.Error(err)
 	}
 
+	writer.Header().Set("Cache-Control", "max-age=900")
 	return fw.JsonOk(writer, user.WonItems)
 }
 

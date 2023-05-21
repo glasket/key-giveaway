@@ -21,7 +21,6 @@ switch (import.meta.env.MODE) {
   case 'development':
     fetchProps = {
       mode: 'cors',
-      cache: 'no-cache',
       credentials: 'include',
       ...fetchProps,
     };

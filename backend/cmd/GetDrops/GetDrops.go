@@ -44,6 +44,7 @@ func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.A
 	cacheVal := cache[includeOld]
 	if cacheVal != nil && cacheVal.Expiry.After(time.Now()) {
 		log.Info().Msg("using cache")
+		writer.Header().Set("Cache-Control", "max-age="+strconv.Itoa(int(time.Until(cacheVal.Expiry).Seconds())))
 		return fw.Ok(writer, cacheVal.Resp)
 	}
 
@@ -61,6 +62,7 @@ func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.A
 	}
 
 	cache[includeOld] = &cachedResp{Resp: resp, Expiry: time.Now().Add(cacheTTL)}
+	writer.Header().Set("Cache-Control", "max-age="+strconv.Itoa(int(cacheTTL.Seconds())))
 	return fw.Ok(writer, resp)
 }
 

@@ -23,6 +23,7 @@ func GetDropItems(ctx context.Context, req events.APIGatewayV2HTTPRequest) (even
 	if err != nil {
 		return fw.Error(err)
 	}
+	writer.Header().Set("Cache-Control", "no-store")
 	database.SetContext(ctx)
 
 	dropId, ok := req.PathParameters["drop_id"]
