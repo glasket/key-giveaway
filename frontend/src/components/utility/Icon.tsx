@@ -1,4 +1,5 @@
 import styles from './Icon.module.css';
+import { icons } from './Icon.types';
 
 type Props = {
   icon: icons;

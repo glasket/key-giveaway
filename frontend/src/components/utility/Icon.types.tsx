@@ -1,4 +1,4 @@
-type icons =
+export type icons =
   | 'search'
   | 'home'
   | 'menu'
