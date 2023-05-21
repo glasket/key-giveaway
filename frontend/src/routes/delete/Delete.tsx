@@ -1,10 +1,10 @@
-import { useCallback, useContext, useState } from 'react';
+import { useCallback, useContext } from 'react';
 import { API } from '../../api/api';
 import { UserContext } from '../../context/UserContext';
 import { Column } from '../../components/utility/Flex';
 
 export const Delete = () => {
-  const [userData, setUserData] = useContext(UserContext);
+  const [, setUserData] = useContext(UserContext);
 
   const deleteCall = useCallback(async () => {
     if (confirm('Are you sure you want to delete your account?')) {
