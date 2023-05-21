@@ -312,6 +312,30 @@ Resources:
             Path: /api/logout
             Method: POST
 
+  DeleteUserFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: DeleteUser
+      CodeUri: ./deploy/DeleteUser.zip
+      Events:
+        CatchAll:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref BackendApi
+            Path: /api/user
+            Method: DELETE
+
+  DeleteUserConnector:
+    Type: AWS::Serverless::Connector
+    Properties:
+      Source:
+        Id: DeleteUserFunction
+      Destination:
+        Id: KeyGiveawayTable
+      Permissions:
+        - Read
+        - Write
+
   # Automated Call
   HandleRaffleFunction:
     Type: AWS::Serverless::Function
