@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	version            string = "v15.0"
+	version            string = "v16.0"
 	url                string = "https://graph.facebook.com/" + version + "/"
 	me_url             string = url + "me?fields=id"
 	token_exchange_url string = url + "oauth/access_token?grant_type=fb_exchange_token&client_id=%s&client_secret=%s&fb_exchange_token=%s"
