@@ -109,11 +109,7 @@ export const GameCard = ({ game }: { game: Game }) => (
         </h4>
       </div>
       <Row align="center" gap="0.8rem">
-        <Price
-          price={game.price}
-          initialPrice={game.initial_price}
-          discount={game.discount}
-        />
+        <Price price={game.price} />
         <Review score={game.review_score} />
       </Row>
       {game.locked_regions.size !== 0 && (

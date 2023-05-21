@@ -277,18 +277,14 @@ type GameItem struct {
 	Key           string   `json:"key"`
 	ReviewScore   int16    `json:"review_score"`
 	Price         int      `json:"price"`
-	InitialPrice  int      `json:"initial_price"`
-	Discount      int      `json:"discount"`
 	LockedRegions []string `json:"locked_regions,omitempty" dynamodbav:",omitempty,stringset"`
 }
 
 type steamSpyResponse struct {
-	Name         string `json:"name"`
-	Pos          int    `json:"positive"`
-	Neg          int    `json:"negative"`
-	Price        int    `json:"price,string"`
-	InitialPrice int    `json:"initialprice,string"`
-	Discount     int    `json:"discount,string"`
+	Name  string `json:"name"`
+	Pos   int    `json:"positive"`
+	Neg   int    `json:"negative"`
+	Price int    `json:"initialprice,string"`
 }
 
 func (g *GameItem) GetSteamSpyData() error {
@@ -306,8 +302,6 @@ func (g *GameItem) GetSteamSpyData() error {
 	}
 	g.Name = ssResp.Name
 	g.Price = ssResp.Price
-	g.InitialPrice = ssResp.InitialPrice
-	g.Discount = ssResp.Discount
 	g.ReviewScore = int16(math.Round(float64(ssResp.Pos) / float64(ssResp.Pos+ssResp.Neg) * 100.0))
 	return nil
 }

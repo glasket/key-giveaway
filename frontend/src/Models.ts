@@ -72,8 +72,6 @@ export type Game = {
   readonly key: string;
   readonly review_score: number;
   readonly price: number;
-  readonly initial_price: number;
-  readonly discount: number;
   readonly locked_regions: Set<string>;
 };
 
@@ -84,8 +82,6 @@ export const gameFromJson = (json: Json<Game>): Game => {
     typeof json.key === 'string' &&
     typeof json.review_score === 'number' &&
     typeof json.price === 'number' &&
-    typeof json.initial_price === 'number' &&
-    typeof json.discount === 'number' &&
     (json.locked_regions instanceof Array || json.locked_regions === undefined)
   ) {
     return {
@@ -94,8 +90,6 @@ export const gameFromJson = (json: Json<Game>): Game => {
       key: json.key,
       review_score: json.review_score,
       price: json.price,
-      initial_price: json.initial_price,
-      discount: json.discount,
       locked_regions: new Set(json.locked_regions)
     };
   }
