@@ -56,7 +56,7 @@ func addRaffleEntry(ctx context.Context, req events.APIGatewayV2HTTPRequest) (ev
 		DropId: reqJson.DropID,
 		ID:     reqJson.ItemID,
 	}
-	item, err = item.AddRaffleEntry(userId)
+	err = item.AddRaffleEntry(userId)
 	if err != nil {
 		return fw.Error(err)
 	}

@@ -30,7 +30,6 @@ func RemoveRaffleEntry(ctx context.Context, req events.APIGatewayV2HTTPRequest) 
 	if err != nil {
 		return fw.Error(err)
 	}
-	// Nil request means the session was already invalidated in fw.Start()
 	if request == nil {
 		return fw.InvalidCookie(writer)
 	}
@@ -50,7 +49,7 @@ func RemoveRaffleEntry(ctx context.Context, req events.APIGatewayV2HTTPRequest) 
 		DropId: reqJson.DropID,
 		ID:     reqJson.ItemID,
 	}
-	item, err = item.RemoveRaffleEntry(userId)
+	err = item.RemoveRaffleEntry(userId)
 	if err != nil {
 		return fw.Error(err)
 	}

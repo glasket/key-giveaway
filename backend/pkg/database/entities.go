@@ -66,7 +66,7 @@ func (u *UserEntity) Get() error {
 	return err
 }
 
-func (u UserEntity) Save() error {
+func (u *UserEntity) Save() error {
 	_, err := db.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: TableName,
 		Item:      getEntityItem(u),
@@ -74,7 +74,7 @@ func (u UserEntity) Save() error {
 	return err
 }
 
-func (u UserEntity) Delete() error {
+func (u *UserEntity) Delete() error {
 	_, err := db.DeleteItem(ctx, &dynamodb.DeleteItemInput{
 		Key:       getEntityKey(u),
 		TableName: TableName,
@@ -82,7 +82,7 @@ func (u UserEntity) Delete() error {
 	return err
 }
 
-func (u UserEntity) DeleteItems() error {
+func (u *UserEntity) DeleteItems() error {
 	expr, err := expression.NewBuilder().
 		WithKeyCondition(
 			expression.KeyAnd(
@@ -103,7 +103,7 @@ func (u UserEntity) DeleteItems() error {
 	if err != nil {
 		return err
 	}
-	var items []UserItemEntity
+	var items []*UserItemEntity
 	err = attributevalue.UnmarshalListOfMaps(resp.Items, &items)
 	if err != nil {
 		return err
@@ -111,7 +111,7 @@ func (u UserEntity) DeleteItems() error {
 	return BatchDelete(items)
 }
 
-func (u UserEntity) getKey() Key { return u.Key }
+func (u *UserEntity) getKey() Key { return u.Key }
 
 type UserItemEntity struct {
 	Key
@@ -120,7 +120,7 @@ type UserItemEntity struct {
 	InsertTime time.Time
 }
 
-func BuildUserItemEntity(u User, i Item) UserItemEntity {
+func BuildUserItemEntity(u *User, i *Item) UserItemEntity {
 	pk, sk := buildKey(u, i)
 	return UserItemEntity{
 		Key:        Key{PK: pk, SK: sk},
@@ -139,7 +139,7 @@ func (e *UserItemEntity) ToItem() Item {
 	}
 }
 
-func (e UserItemEntity) getKey() Key { return e.Key }
+func (e *UserItemEntity) getKey() Key { return e.Key }
 
 type DropEntity struct {
 	Key
@@ -147,7 +147,7 @@ type DropEntity struct {
 	End  time.Time
 }
 
-func BuildDropEntity(d Drop) DropEntity {
+func BuildDropEntity(d *Drop) DropEntity {
 	pk, sk := buildKey(d, d)
 	return DropEntity{
 		Key:  Key{PK: pk, SK: sk},
@@ -156,7 +156,7 @@ func BuildDropEntity(d Drop) DropEntity {
 	}
 }
 
-func (d DropEntity) Save() error {
+func (d *DropEntity) Save() error {
 	_, err := db.PutItem(ctx, &dynamodb.PutItemInput{
 		TableName: TableName,
 		Item:      getEntityItem(d),
@@ -164,7 +164,7 @@ func (d DropEntity) Save() error {
 	return err
 }
 
-func (d DropEntity) ToDrop() Drop {
+func (d *DropEntity) ToDrop() Drop {
 	return Drop{
 		ID:   keyToId(d.PK),
 		Name: d.Name,
@@ -172,7 +172,7 @@ func (d DropEntity) ToDrop() Drop {
 	}
 }
 
-func (d DropEntity) getKey() Key { return d.Key }
+func (d *DropEntity) getKey() Key { return d.Key }
 
 type DropItemEntity struct {
 	Key
@@ -181,7 +181,7 @@ type DropItemEntity struct {
 	Entries []string `dynamodbav:",omitempty,stringset"`
 }
 
-func BuildDropItemEntity(d Drop, i Item) DropItemEntity {
+func BuildDropItemEntity(d *Drop, i *Item) DropItemEntity {
 	pk, sk := buildKey(d, i)
 	var entries []string
 	if i.Entries.Count() != 0 {
@@ -195,12 +195,12 @@ func BuildDropItemEntity(d Drop, i Item) DropItemEntity {
 	}
 }
 
-func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity, err error) {
+func (d *DropItemEntity) AddRaffleEntry(userId string) (err error) {
 	addSet := types.AttributeValueMemberSS{Value: []string{userId}}
 	update := expression.Add(expression.Name("Entries"), expression.Value(addSet))
 	expr, err := expression.NewBuilder().WithUpdate(update).Build()
 	if err != nil {
-		return newEntity, err
+		return err
 	}
 	resp, err := db.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		Key:                       getEntityKey(d),
@@ -211,21 +211,21 @@ func (d DropItemEntity) AddRaffleEntry(userId string) (newEntity DropItemEntity,
 		ReturnValues:              types.ReturnValueAllNew,
 	})
 	if err != nil {
-		return newEntity, err
+		return err
 	}
-	err = attributevalue.UnmarshalMap(resp.Attributes, &newEntity)
+	err = attributevalue.UnmarshalMap(resp.Attributes, &d)
 	if err != nil {
-		return newEntity, err
+		return err
 	}
-	return newEntity, err
+	return err
 }
 
-func (d DropItemEntity) RemoveRaffleEntry(userId string) (newEntity DropItemEntity, err error) {
+func (d *DropItemEntity) RemoveRaffleEntry(userId string) (err error) {
 	removeSet := types.AttributeValueMemberSS{Value: []string{userId}}
 	update := expression.Delete(expression.Name("Entries"), expression.Value(removeSet))
 	expr, err := expression.NewBuilder().WithUpdate(update).Build()
 	if err != nil {
-		return newEntity, err
+		return err
 	}
 	resp, err := db.UpdateItem(ctx, &dynamodb.UpdateItemInput{
 		Key:                       getEntityKey(d),
@@ -236,16 +236,16 @@ func (d DropItemEntity) RemoveRaffleEntry(userId string) (newEntity DropItemEnti
 		ReturnValues:              types.ReturnValueAllNew,
 	})
 	if err != nil {
-		return newEntity, err
+		return err
 	}
-	err = attributevalue.UnmarshalMap(resp.Attributes, &newEntity)
+	err = attributevalue.UnmarshalMap(resp.Attributes, &d)
 	if err != nil {
-		return newEntity, err
+		return err
 	}
-	return newEntity, nil
+	return nil
 }
 
-func (d DropItemEntity) ToItem(withKeys bool) Item {
+func (d *DropItemEntity) ToItem(withKeys bool) Item {
 	// withKeys required due to limitations with DynamoDB; can't project (list of map) attributes
 	if !withKeys {
 		for i := range d.Items {
@@ -261,7 +261,7 @@ func (d DropItemEntity) ToItem(withKeys bool) Item {
 	}
 }
 
-func (d DropItemEntity) getKey() Key { return d.Key }
+func (d *DropItemEntity) getKey() Key { return d.Key }
 
 func BatchWrite[T any](items []T) error {
 	start := 0

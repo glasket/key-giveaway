@@ -33,7 +33,7 @@ func HandleRaffle(ctx context.Context, evt events.CloudWatchEvent) error {
 	drop := database.Drop{
 		ID: req.DropID,
 	}
-	drop, err = drop.GetItems(true)
+	err = drop.GetItems(true)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func HandleRaffle(ctx context.Context, evt events.CloudWatchEvent) error {
 			ID: item.Entries.Values()[winningEntry],
 		}
 		item.InsertTime = time.Now()
-		userItemEntities = append(userItemEntities, database.BuildUserItemEntity(winner, item))
+		userItemEntities = append(userItemEntities, database.BuildUserItemEntity(&winner, &item))
 	}
 	database.BatchWrite(userItemEntities)
 	return nil

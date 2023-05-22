@@ -92,22 +92,22 @@ type Drop struct {
 	Items []Item    `json:"items"`
 }
 
-func (d Drop) Id() string {
+func (d *Drop) Id() string {
 	return d.ID
 }
 
-func (d Drop) Tag() rune {
+func (d *Drop) Tag() rune {
 	return dropEntityTag
 }
 
-func (d Drop) Save() error {
+func (d *Drop) Save() error {
 	e := BuildDropEntity(d)
 	if err := e.Save(); err != nil {
 		return err
 	}
 	var itemEntities []DropItemEntity
 	for _, i := range d.Items {
-		itemEntities = append(itemEntities, BuildDropItemEntity(d, i))
+		itemEntities = append(itemEntities, BuildDropItemEntity(d, &i))
 	}
 	if err := BatchWrite(itemEntities); err != nil {
 		return err
@@ -115,7 +115,7 @@ func (d Drop) Save() error {
 	return nil
 }
 
-func (d Drop) GetItems(withKeys bool) (Drop, error) {
+func (d *Drop) GetItems(withKeys bool) error {
 	e := BuildDropEntity(d)
 	expr, err := expression.NewBuilder().
 		WithKeyCondition(
@@ -125,7 +125,7 @@ func (d Drop) GetItems(withKeys bool) (Drop, error) {
 			)).
 		Build()
 	if err != nil {
-		return d, err
+		return err
 	}
 	var resp *dynamodb.QueryOutput
 	resp, err = db.Query(ctx, &dynamodb.QueryInput{
@@ -135,7 +135,7 @@ func (d Drop) GetItems(withKeys bool) (Drop, error) {
 		KeyConditionExpression:    expr.KeyCondition(),
 	})
 	if err != nil {
-		return d, err
+		return err
 	}
 	// Estimate ~8000 items or so per MB, so leave this out unless proved otherwise
 	// items := resp.Items
@@ -160,7 +160,7 @@ func (d Drop) GetItems(withKeys bool) (Drop, error) {
 	for _, item := range dropItemEntityList {
 		d.Items = append(d.Items, item.ToItem(withKeys))
 	}
-	return d, nil
+	return nil
 }
 
 func GetAllDrops(includeOld bool) ([]Drop, error) {
@@ -203,7 +203,7 @@ func GetAllDrops(includeOld bool) ([]Drop, error) {
 }
 
 func validateDrop(id string) bool {
-	e := BuildDropEntity(Drop{ID: id})
+	e := BuildDropEntity(&Drop{ID: id})
 	expr, err := expression.NewBuilder().
 		WithKeyCondition(
 			expression.KeyAnd(
@@ -242,33 +242,34 @@ type Item struct {
 	InsertTime time.Time       `json:"insert_time,omitempty"`
 }
 
-func (i Item) Id() string {
+func (i *Item) Id() string {
 	return i.ID
 }
 
-func (i Item) Tag() rune {
+func (i *Item) Tag() rune {
 	return itemEntityTag
 }
 
-func (i Item) AddRaffleEntry(userId string) (Item, error) {
-	return i.HandleRaffleEntry(userId, DropItemEntity.AddRaffleEntry)
+func (i *Item) AddRaffleEntry(userId string) error {
+	return i.HandleRaffleEntry(userId, (*DropItemEntity).AddRaffleEntry)
 }
 
-func (i Item) RemoveRaffleEntry(userId string) (Item, error) {
-	return i.HandleRaffleEntry(userId, DropItemEntity.RemoveRaffleEntry)
+func (i *Item) RemoveRaffleEntry(userId string) error {
+	return i.HandleRaffleEntry(userId, (*DropItemEntity).RemoveRaffleEntry)
 }
 
-func (i Item) HandleRaffleEntry(userId string, raffleFunc func(e DropItemEntity, userId string) (DropItemEntity, error)) (Item, error) {
+func (i *Item) HandleRaffleEntry(userId string, raffleFunc func(e *DropItemEntity, userId string) error) error {
 	valid := validateDrop(i.DropId)
 	if !valid {
-		return Item{}, errors.New("drop is expired")
+		return errors.New("drop is expired")
 	}
-	e := BuildDropItemEntity(Drop{ID: i.DropId}, i)
-	e, err := raffleFunc(e, userId)
+	e := BuildDropItemEntity(&Drop{ID: i.DropId}, i)
+	err := raffleFunc(&e, userId)
 	if err != nil {
-		return Item{}, err
+		return err
 	}
-	return e.ToItem(false), nil
+	*i = e.ToItem(false)
+	return nil
 }
 
 type GameItem struct {
