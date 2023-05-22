@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"key-giveaway/pkg/database"
 	"key-giveaway/pkg/fw"
 	"strconv"
@@ -28,6 +29,7 @@ type cachedResp struct {
 }
 
 const cacheTTL time.Duration = time.Hour
+const cacheStr string = "max-age=3600"
 
 var cache map[bool]*cachedResp = make(map[bool]*cachedResp)
 
@@ -44,7 +46,7 @@ func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.A
 	cacheVal := cache[includeOld]
 	if cacheVal != nil && cacheVal.Expiry.After(time.Now()) {
 		log.Info().Msg("using cache")
-		writer.Header().Set("Cache-Control", "max-age="+strconv.Itoa(int(time.Until(cacheVal.Expiry).Seconds())))
+		writer.Header().Set("Cache-Control", fmt.Sprintf("max-age=%d, must-revalidate", int(time.Until(cacheVal.Expiry).Seconds())))
 		return fw.Ok(writer, cacheVal.Resp)
 	}
 
@@ -62,7 +64,7 @@ func GetDrops(ctx context.Context, req events.APIGatewayV2HTTPRequest) (events.A
 	}
 
 	cache[includeOld] = &cachedResp{Resp: resp, Expiry: time.Now().Add(cacheTTL)}
-	writer.Header().Set("Cache-Control", "max-age="+strconv.Itoa(int(cacheTTL.Seconds())))
+	writer.Header().Set("Cache-Control", cacheStr)
 	return fw.Ok(writer, resp)
 }
 
