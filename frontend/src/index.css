@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900');
+@import 'tippy.js/dist/tippy.css';
 @import 'reset.css';
 @import '_var.css';
 @import '_util.css';
