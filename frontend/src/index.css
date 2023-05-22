@@ -116,6 +116,7 @@ button {
     border: none;
     cursor: default;
     pointer-events: none;
+    filter: saturate(0.5) brightness(0.75);
   }
 
   &.link {
