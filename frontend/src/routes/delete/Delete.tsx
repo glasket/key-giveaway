@@ -4,7 +4,7 @@ import { UserContext } from '../../context/UserContext';
 import { Column } from '../../components/utility/Flex';
 
 export const Delete = () => {
-  const [, setUserData] = useContext(UserContext);
+  const [userData, setUserData] = useContext(UserContext);
 
   const deleteCall = useCallback(async () => {
     if (confirm('Are you sure you want to delete your account?')) {
@@ -22,7 +22,11 @@ export const Delete = () => {
       <h2>WARNING</h2>
       <p>This will delete all of your data, including won items.</p>
       <em>This action cannot be undone.</em>
-      <button onClick={deleteCall} className="warn bold">
+      <button
+        onClick={deleteCall}
+        className="warn bold"
+        disabled={userData === null}
+      >
         Delete Account
       </button>
     </Column>
