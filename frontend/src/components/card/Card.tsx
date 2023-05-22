@@ -81,7 +81,7 @@ export const Card = ({
       {hasImages && (
         <div className={styles['images']} {...swipes}>
           {headerImages.map((i, idx) => (
-            <img src={i} key={idx} />
+            <img src={i} key={idx} width="294px" />
           ))}
         </div>
       )}
