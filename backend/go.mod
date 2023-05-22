@@ -3,6 +3,7 @@ module key-giveaway
 go 1.18
 
 require (
+	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/aws/aws-lambda-go v1.36.0 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.17.5 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.18.8 // indirect
@@ -27,7 +28,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sts v1.18.0 // indirect
 	github.com/aws/smithy-go v1.13.5 // indirect
 	github.com/awslabs/aws-lambda-go-api-proxy v0.13.3 // indirect
-	github.com/glasket/datastructures v0.3.0 // indirect
+	github.com/glasket/datastructures v0.4.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/securecookie v1.1.1 // indirect
 	github.com/gorilla/sessions v1.2.1 // indirect
@@ -36,5 +37,10 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/rs/zerolog v1.29.0 // indirect
+	github.com/surullabs/lint v0.0.0-20171003141706-f90256a82312 // indirect
+	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sys v0.0.0-20220615213510-4f61da869c0c // indirect
+	golang.org/x/tools v0.1.5 // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
+	honnef.co/go/tools v0.0.1-2020.1.4 // indirect
 )
