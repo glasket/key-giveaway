@@ -7,13 +7,11 @@ names = $(shell ls cmd)
 build_targets = $(addprefix bin/cmd/, $(names))
 deploy_targets = $(addsuffix .zip, $(addprefix deploy/, $(names)))
 
-.PHONY: all build cli deploy clean
+.PHONY: build cli deploy clean
 
-all: deploy cli
+build: $(build_targets)
 
 deploy: $(deploy_targets)
-
-build: $(build_targets) bin/cli/cli
 
 cli: bin/cli/cli
 
